@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Court System - Glass Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: {
+                        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Hide scrollbar for cleaner look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+        }
+
+        .glass-sidebar {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+
+<body
+    class="h-screen w-full flex overflow-hidden font-sans antialiased text-slate-800 bg-slate-50 selection:bg-blue-500/30 selection:text-blue-900">
+
+    <!-- Ambient Background Mesh (Static for Dashboard to improve performance) -->
+    <div
+        class="fixed inset-0 w-full h-full bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100 z-0 pointer-events-none">
+    </div>
+    <div
+        class="fixed -top-40 -right-40 w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-3xl z-0 pointer-events-none">
+    </div>
+    <div
+        class="fixed -bottom-40 -left-40 w-[600px] h-[600px] bg-indigo-400/10 rounded-full blur-3xl z-0 pointer-events-none">
+    </div>
+
+    <!-- Frosted Glass Sidebar -->
+    <aside class="glass-sidebar w-20 lg:w-64 h-full z-20 flex flex-col shrink-0 transition-all duration-300">
+        <!-- Logo -->
+        <div class="h-24 flex items-center justify-center lg:justify-start lg:px-8">
+            <div
+                class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center text-white shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                    <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                    <path d="M7 21h10" />
+                    <path d="M12 3v18" />
+                    <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+                </svg>
+            </div>
+            <span class="hidden lg:block ml-4 font-bold text-lg text-slate-800 tracking-tight">AI Court</span>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-4 py-6 space-y-4">
+            <!-- Active Item -->
+            <a href="#"
+                class="flex items-center p-3 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/30 group transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="7" height="9" x="3" y="3" rx="1" />
+                    <rect width="7" height="5" x="14" y="3" rx="1" />
+                    <rect width="7" height="9" x="14" y="12" rx="1" />
+                    <rect width="7" height="5" x="3" y="16" rx="1" />
+                </svg>
+                <span class="hidden lg:block ml-4 font-medium">Dashboard</span>
+            </a>
+
+            <!-- Inactive Items -->
+            <a href="#"
+                class="flex items-center p-3 rounded-2xl text-slate-500 hover:bg-white/60 hover:text-blue-600 hover:shadow-sm transition-all duration-300 group">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="group-hover:scale-110 transition-transform">
+                    <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                    <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                    <path d="M7 21h10" />
+                    <path d="M12 3v18" />
+                    <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+                </svg>
+                <span class="hidden lg:block ml-4 font-medium">Simulation</span>
+            </a>
+
+            <a href="#"
+                class="flex items-center p-3 rounded-2xl text-slate-500 hover:bg-white/60 hover:text-blue-600 hover:shadow-sm transition-all duration-300 group">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="group-hover:scale-110 transition-transform">
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
+                </svg>
+                <span class="hidden lg:block ml-4 font-medium">Evidence</span>
+            </a>
+
+            <a href="#"
+                class="flex items-center p-3 rounded-2xl text-slate-500 hover:bg-white/60 hover:text-blue-600 hover:shadow-sm transition-all duration-300 group">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="group-hover:scale-110 transition-transform">
+                    <path d="M3 3v18h18" />
+                    <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
+                </svg>
+                <span class="hidden lg:block ml-4 font-medium">Analysis</span>
+            </a>
+        </nav>
+
+        <!-- User Profile (Glass) -->
+        <div class="p-4 lg:p-6 mt-auto">
+            <div
+                class="flex items-center gap-4 bg-white/40 backdrop-blur-md p-3 rounded-2xl border border-white/50 cursor-pointer hover:bg-white/60 transition-colors">
+                <div class="relative">
+                    <img src="https://ui-avatars.com/api/?name=Prosecutor&background=2563eb&color=fff"
+                        class="w-10 h-10 rounded-xl" alt="Profile">
+                    <span
+                        class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                </div>
+                <div class="hidden lg:flex flex-col">
+                    <span class="text-xs font-bold text-slate-700">Prosecutor A.</span>
+                    <span class="text-[10px] text-slate-500 uppercase tracking-wider">Level 3 Clearance</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 relative overflow-auto z-10 p-6 lg:p-10 scroll-smooth">
+
+        <!-- Top Bar -->
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Overview</h1>
+                <p class="text-slate-500 font-medium">Welcome back to the Neural Justice Interface.</p>
+            </div>
+
+            <div class="flex gap-4">
+                <button
+                    class="p-3 rounded-xl bg-white/50 border border-white/60 hover:bg-white/80 transition-colors text-slate-600 shadow-sm relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg>
+                    <span class="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero Card (Transparent Tech) -->
+        <div class="w-full h-80 rounded-3xl relative overflow-hidden mb-10 group">
+            <!-- Glass Background -->
+            <div
+                class="absolute inset-0 bg-white/30 backdrop-filter backdrop-blur-lg border border-white/40 shadow-xl rounded-3xl z-0">
+            </div>
+
+            <!-- Abstract Neural Shape (SVG) -->
+            <svg class="absolute right-0 top-0 h-full w-1/2 opacity-20 text-blue-600 pointer-events-none"
+                viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor"
+                    d="M45.7,-76.3C58.9,-69.3,69.1,-55.6,76.5,-40.8C83.9,-26,88.5,-10.1,86.6,5.1C84.7,20.3,76.3,34.8,66.6,47.6C56.9,60.4,45.9,71.5,33.1,77.2C20.3,82.9,5.7,83.1,-8.2,81.3C-22.1,79.5,-35.3,75.7,-47.1,68.9C-58.9,62.1,-69.3,52.3,-76.4,40.3C-83.5,28.3,-87.3,14.2,-85.8,0.9C-84.3,-12.4,-77.5,-24.8,-69.1,-35.4C-60.7,-46,-50.7,-54.8,-39.7,-63.1C-28.7,-71.4,-16.7,-79.2,-1.2,-77.3C14.3,-75.4,28.7,-63.7,45.7,-76.3Z"
+                    transform="translate(200 200)" />
+            </svg>
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent z-0"></div>
+
+            <div class="relative z-10 h-full flex flex-col justify-center px-12">
+                <span
+                    class="inline-block px-3 py-1 rounded-full bg-blue-100/50 border border-blue-200/50 text-blue-700 text-xs font-bold uppercase tracking-widest w-fit mb-4 backdrop-blur-md">V3.0
+                    System Active</span>
+                <h2 class="text-4xl lg:text-5xl font-bold text-slate-800 mb-6 tracking-tight">Immersive
+                    Legal<br>Training Protocol</h2>
+
+                <div class="flex gap-4">
+                    <button
+                        class="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 transition-all hover:scale-105 active:scale-95 flex items-center">
+                        Initialize Simulation
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="ml-2">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </button>
+                    <button
+                        class="px-8 py-3.5 bg-white/50 hover:bg-white/80 text-slate-700 font-semibold rounded-xl border border-white/60 transition-all hover:scale-105 active:scale-95">
+                        View Documentation
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Glass Module Cards -->
+        <h3 class="text-lg font-bold text-slate-700 mb-6 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Active Modules
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Module 1: Mock Court -->
+            <div
+                class="glass-panel rounded-3xl p-8 hover:bg-white/80 transition-all duration-300 hover:-translate-y-1 group cursor-pointer relative overflow-hidden">
+                <div
+                    class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500 text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                        <path d="M7 21h10" />
+                        <path d="M12 3v18" />
+                        <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+                    </svg>
+                </div>
+
+                <div
+                    class="w-14 h-14 rounded-2xl bg-blue-50/80 border border-blue-100 flex items-center justify-center text-blue-600 mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                        <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                        <path d="M7 21h10" />
+                        <path d="M12 3v18" />
+                        <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+                    </svg>
+                </div>
+
+                <h4 class="text-xl font-bold text-slate-800 mb-2">Mock Court</h4>
+                <p class="text-sm text-slate-500 leading-relaxed mb-6 font-medium">
+                    Engage in high-fidelity legal simulations with adaptive AI opponents.
+                </p>
+
+                <span
+                    class="text-xs font-bold text-blue-600 flex items-center group-hover:translate-x-1 transition-transform">
+                    Enter Courtroom <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="ml-1">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </span>
+            </div>
+
+            <!-- Module 2: Evidence -->
+            <div
+                class="glass-panel rounded-3xl p-8 hover:bg-white/80 transition-all duration-300 hover:-translate-y-1 group cursor-pointer relative overflow-hidden">
+                <div
+                    class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500 text-indigo-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
+                    </svg>
+                </div>
+
+                <div
+                    class="w-14 h-14 rounded-2xl bg-indigo-50/80 border border-indigo-100 flex items-center justify-center text-indigo-600 mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                        <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z" />
+                    </svg>
+                </div>
+
+                <h4 class="text-xl font-bold text-slate-800 mb-2">Evidence Vault</h4>
+                <p class="text-sm text-slate-500 leading-relaxed mb-6 font-medium">
+                    Securely manage and analyze digital evidence chains.
+                </p>
+
+                <span
+                    class="text-xs font-bold text-indigo-600 flex items-center group-hover:translate-x-1 transition-transform">
+                    Access Files <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="ml-1">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </span>
+            </div>
+
+            <!-- Module 3: Analytics -->
+            <div
+                class="glass-panel rounded-3xl p-8 hover:bg-white/80 transition-all duration-300 hover:-translate-y-1 group cursor-pointer relative overflow-hidden">
+                <div
+                    class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity transform group-hover:scale-110 duration-500 text-teal-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18" />
+                        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
+                    </svg>
+                </div>
+
+                <div
+                    class="w-14 h-14 rounded-2xl bg-teal-50/80 border border-teal-100 flex items-center justify-center text-teal-600 mb-6 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18" />
+                        <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3" />
+                    </svg>
+                </div>
+
+                <h4 class="text-xl font-bold text-slate-800 mb-2">Neural Analytics</h4>
+                <p class="text-sm text-slate-500 leading-relaxed mb-6 font-medium">
+                    Real-time performance scoring and behavioral analysis.
+                </p>
+
+                <span
+                    class="text-xs font-bold text-teal-600 flex items-center group-hover:translate-x-1 transition-transform">
+                    View Reports <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" class="ml-1">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </span>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+
+</html>

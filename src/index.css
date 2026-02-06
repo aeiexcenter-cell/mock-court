@@ -1,0 +1,312 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+
+  /* Global Scrollbar Hiding */
+  * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  *::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+@layer base {
+
+  /* --- Default Theme (Vintage Gold) --- */
+  :root,
+  [data-theme="default"] {
+    --md-sys-color-primary: 109 94 15;
+    --md-sys-color-surface-tint: 109 94 15;
+    --md-sys-color-on-primary: 255 255 255;
+    --md-sys-color-primary-container: 248 226 135;
+    --md-sys-color-on-primary-container: 83 70 0;
+    --md-sys-color-secondary: 102 94 64;
+    --md-sys-color-on-secondary: 255 255 255;
+    --md-sys-color-secondary-container: 238 226 188;
+    --md-sys-color-on-secondary-container: 78 71 42;
+    --md-sys-color-tertiary: 67 102 78;
+    --md-sys-color-on-tertiary: 255 255 255;
+    --md-sys-color-tertiary-container: 197 236 206;
+    --md-sys-color-on-tertiary-container: 44 78 56;
+    --md-sys-color-error: 186 26 26;
+    --md-sys-color-on-error: 255 255 255;
+    --md-sys-color-error-container: 255 218 214;
+    --md-sys-color-on-error-container: 147 0 10;
+    --md-sys-color-background: 255 249 238;
+    --md-sys-color-on-background: 30 27 19;
+    --md-sys-color-surface: 255 249 238;
+    --md-sys-color-on-surface: 30 27 19;
+    --md-sys-color-surface-variant: 234 226 208;
+    --md-sys-color-on-surface-variant: 75 71 57;
+    --md-sys-color-outline: 124 119 103;
+    --md-sys-color-outline-variant: 205 198 180;
+    --md-sys-color-shadow: 0 0 0;
+    --md-sys-color-scrim: 0 0 0;
+    --md-sys-color-inverse-surface: 51 48 39;
+    --md-sys-color-inverse-on-surface: 247 240 226;
+    --md-sys-color-inverse-primary: 219 198 110;
+    --md-sys-color-primary-fixed: 248 226 135;
+    --md-sys-color-on-primary-fixed: 34 27 0;
+    --md-sys-color-primary-fixed-dim: 219 198 110;
+    --md-sys-color-on-primary-fixed-variant: 83 70 0;
+    --md-sys-color-secondary-fixed: 238 226 188;
+    --md-sys-color-on-secondary-fixed: 33 27 4;
+    --md-sys-color-secondary-fixed-dim: 209 198 161;
+    --md-sys-color-on-secondary-fixed-variant: 78 71 42;
+    --md-sys-color-tertiary-fixed: 197 236 206;
+    --md-sys-color-on-tertiary-fixed: 0 33 15;
+    --md-sys-color-tertiary-fixed-dim: 169 208 179;
+    --md-sys-color-on-tertiary-fixed-variant: 44 78 56;
+    --md-sys-color-surface-dim: 224 217 204;
+    --md-sys-color-surface-bright: 255 249 238;
+    --md-sys-color-surface-container-lowest: 255 252 247;
+    --md-sys-color-surface-container-low: 250 243 229;
+    --md-sys-color-surface-container: 244 237 223;
+    --md-sys-color-surface-container-high: 238 232 218;
+    --md-sys-color-surface-container-highest: 232 226 212;
+
+    /* Role Colors (Default / Gold Light) */
+    --role-judge-bg: 56 102 99;
+    --role-judge: 255 255 255;
+    --role-prosecutor-bg: 205 237 163;
+    --role-prosecutor: 26 28 22;
+    --role-defense-bg: 214 227 255;
+    --role-defense: 0 29 51;
+    --role-system-bg: 86 95 113;
+    --role-system: 255 255 255;
+  }
+
+  /* --- Forest Light --- */
+  [data-theme="forest-light"],
+  [data-theme="forest-light-hc"] {
+    --md-sys-color-primary: 76 102 43;
+    --md-sys-color-on-primary: 255 255 255;
+    --md-sys-color-primary-container: 205 237 163;
+    --md-sys-color-on-primary-container: 53 78 22;
+    --md-sys-color-secondary: 88 98 73;
+    --md-sys-color-on-secondary: 255 255 255;
+    --md-sys-color-secondary-container: 220 231 200;
+    --md-sys-color-on-secondary-container: 64 74 51;
+    --md-sys-color-tertiary: 56 102 99;
+    --md-sys-color-on-tertiary: 255 255 255;
+    --md-sys-color-tertiary-container: 188 236 231;
+    --md-sys-color-on-tertiary-container: 31 78 75;
+    --md-sys-color-error: 186 26 26;
+    --md-sys-color-on-error: 255 255 255;
+    --md-sys-color-error-container: 255 218 214;
+    --md-sys-color-on-error-container: 147 0 10;
+    --md-sys-color-background: 249 250 239;
+    --md-sys-color-on-background: 26 28 22;
+    --md-sys-color-surface: 249 250 239;
+    --md-sys-color-on-surface: 26 28 22;
+    --md-sys-color-surface-variant: 225 228 213;
+    --md-sys-color-on-surface-variant: 68 72 61;
+    --md-sys-color-outline: 117 121 108;
+    --md-sys-color-outline-variant: 197 200 186;
+    --md-sys-color-inverse-surface: 47 49 42;
+    --md-sys-color-inverse-on-surface: 241 242 230;
+    --md-sys-color-inverse-primary: 177 209 138;
+    /* Derived surface containers for light mode if not provided explicitly, approximating */
+    --md-sys-color-surface-container-lowest: 255 255 255;
+    --md-sys-color-surface-container-low: 249 250 239;
+    --md-sys-color-surface-container: 243 244 233;
+    --md-sys-color-surface-container-high: 237 238 227;
+    --md-sys-color-surface-container-highest: 231 232 221;
+
+    /* Role Colors (Forest Light) */
+    --role-judge-bg: 56 102 99;
+    --role-judge: 255 255 255;
+    --role-prosecutor-bg: 205 237 163;
+    --role-prosecutor: 26 28 22;
+    --role-defense-bg: 214 227 255;
+    --role-defense: 0 29 51;
+    --role-system-bg: 86 95 113;
+    --role-system: 255 255 255;
+    /* Shadows */
+    --md-sys-color-shadow: 0 0 0;
+    --md-sys-color-scrim: 0 0 0;
+  }
+
+  /* --- Forest Dark --- */
+  [data-theme="forest-dark"],
+  [data-theme="forest-dark-hc"] {
+    --md-sys-color-primary: 177 209 138;
+    --md-sys-color-on-primary: 31 55 1;
+    --md-sys-color-primary-container: 53 78 22;
+    --md-sys-color-on-primary-container: 205 237 163;
+    --md-sys-color-secondary: 191 203 173;
+    --md-sys-color-on-secondary: 42 51 30;
+    --md-sys-color-secondary-container: 64 74 51;
+    --md-sys-color-on-secondary-container: 220 231 200;
+    --md-sys-color-tertiary: 160 208 203;
+    --md-sys-color-on-tertiary: 0 55 53;
+    --md-sys-color-tertiary-container: 31 78 75;
+    --md-sys-color-on-tertiary-container: 188 236 231;
+    --md-sys-color-error: 255 180 171;
+    --md-sys-color-on-error: 105 0 5;
+    --md-sys-color-error-container: 147 0 10;
+    --md-sys-color-on-error-container: 255 218 214;
+    --md-sys-color-background: 18 20 14;
+    --md-sys-color-on-background: 226 227 216;
+    --md-sys-color-surface: 18 20 14;
+    --md-sys-color-on-surface: 226 227 216;
+    --md-sys-color-surface-variant: 68 72 61;
+    --md-sys-color-on-surface-variant: 197 200 186;
+    --md-sys-color-outline: 143 146 133;
+    --md-sys-color-outline-variant: 68 72 61;
+    --md-sys-color-inverse-surface: 226 227 216;
+    --md-sys-color-inverse-on-surface: 47 49 42;
+    --md-sys-color-inverse-primary: 76 102 43;
+    /* Derived surface containers for dark mode if not provided explicitly, approximating */
+    --md-sys-color-surface-container-lowest: 14 16 10;
+    --md-sys-color-surface-container-low: 18 20 14;
+    --md-sys-color-surface-container: 22 24 18;
+    --md-sys-color-surface-container-high: 26 28 22;
+    --md-sys-color-surface-container-highest: 30 32 26;
+
+    /* Role Colors (Forest Dark) */
+    --role-judge-bg: 160 208 203;
+    /* Pastel Teal */
+    --role-judge: 30 40 30;
+    /* Dark Green */
+    --role-prosecutor-bg: 205 237 163;
+    /* Light Green */
+    --role-prosecutor: 35 45 20;
+    /* Dark Olive */
+    --role-defense-bg: 180 200 255;
+    /* Light Blue */
+    --role-defense: 20 30 50;
+    /* Dark Blue */
+    --role-system-bg: 40 42 47;
+    /* Dark Grey (Darkened) */
+    --role-system: 226 226 233;
+    /* Light Grey (Lightened) */
+    /* Shadows */
+    --md-sys-color-shadow: 0 0 0;
+    --md-sys-color-scrim: 0 0 0;
+  }
+
+  /* --- Ocean Light --- */
+  [data-theme="ocean-light"],
+  [data-theme="ocean-light-hc"] {
+    --md-sys-color-primary: 65 95 145;
+    --md-sys-color-on-primary: 255 255 255;
+    --md-sys-color-primary-container: 214 227 255;
+    --md-sys-color-on-primary-container: 40 71 119;
+    --md-sys-color-secondary: 83 95 113;
+    --md-sys-color-on-secondary: 255 255 255;
+    --md-sys-color-secondary-container: 215 227 248;
+    --md-sys-color-on-secondary-container: 16 28 43;
+    --md-sys-color-tertiary: 107 87 120;
+    --md-sys-color-on-tertiary: 255 255 255;
+    --md-sys-color-tertiary-container: 243 218 255;
+    --md-sys-color-on-tertiary-container: 37 20 49;
+    --md-sys-color-error: 186 26 26;
+    --md-sys-color-on-error: 255 255 255;
+    --md-sys-color-error-container: 255 218 214;
+    --md-sys-color-on-error-container: 65 0 2;
+    --md-sys-color-background: 249 249 255;
+    --md-sys-color-on-background: 25 28 32;
+    --md-sys-color-surface: 249 249 255;
+    --md-sys-color-on-surface: 25 28 32;
+    --md-sys-color-surface-variant: 224 226 236;
+    --md-sys-color-on-surface-variant: 67 71 78;
+    --md-sys-color-outline: 116 119 127;
+    --md-sys-color-outline-variant: 196 198 207;
+    --md-sys-color-inverse-surface: 46 49 53;
+    --md-sys-color-inverse-on-surface: 240 240 247;
+    --md-sys-color-inverse-primary: 170 199 255;
+    /* Derived surfaces */
+    --md-sys-color-surface-container-lowest: 255 255 255;
+    --md-sys-color-surface-container-low: 243 243 250;
+    --md-sys-color-surface-container: 237 237 244;
+    --md-sys-color-surface-container-high: 231 232 238;
+    --md-sys-color-surface-container-highest: 226 226 233;
+
+    /* Role Colors (Ocean Light) */
+    --role-judge-bg: 60 80 120;
+    --role-judge: 255 255 255;
+    --role-prosecutor-bg: 200 230 200;
+    /* Pale Green */
+    --role-prosecutor: 20 40 20;
+    /* Dark Green */
+    --role-defense-bg: 214 227 255;
+    /* Pale Blue */
+    --role-defense: 10 30 60;
+    /* Dark Blue */
+    --role-system-bg: 80 90 100;
+    --role-system: 255 255 255;
+    --md-sys-color-shadow: 0 0 0;
+    --md-sys-color-scrim: 0 0 0;
+  }
+
+  /* --- Ocean Dark --- */
+  [data-theme="ocean-dark"],
+  [data-theme="ocean-dark-hc"] {
+    --md-sys-color-primary: 170 199 255;
+    --md-sys-color-on-primary: 10 48 95;
+    --md-sys-color-primary-container: 40 71 119;
+    --md-sys-color-on-primary-container: 214 227 255;
+    --md-sys-color-secondary: 187 199 219;
+    --md-sys-color-on-secondary: 37 49 64;
+    --md-sys-color-secondary-container: 61 71 88;
+    --md-sys-color-on-secondary-container: 215 227 248;
+    --md-sys-color-tertiary: 214 190 228;
+    --md-sys-color-on-tertiary: 59 41 71;
+    --md-sys-color-tertiary-container: 82 66 95;
+    --md-sys-color-on-tertiary-container: 243 218 255;
+    --md-sys-color-error: 255 180 171;
+    --md-sys-color-on-error: 105 0 5;
+    --md-sys-color-error-container: 147 0 10;
+    --md-sys-color-on-error-container: 255 218 214;
+    --md-sys-color-background: 17 19 24;
+    --md-sys-color-on-background: 226 226 233;
+    --md-sys-color-surface: 17 19 24;
+    --md-sys-color-on-surface: 226 226 233;
+    --md-sys-color-surface-variant: 67 71 78;
+    --md-sys-color-on-surface-variant: 196 198 207;
+    --md-sys-color-outline: 141 145 153;
+    --md-sys-color-outline-variant: 67 71 78;
+    --md-sys-color-inverse-surface: 226 226 233;
+    --md-sys-color-inverse-on-surface: 46 49 53;
+    --md-sys-color-inverse-primary: 65 95 145;
+    /* Derived surfaces */
+    --md-sys-color-surface-container-lowest: 12 14 19;
+    --md-sys-color-surface-container-low: 17 19 24;
+    --md-sys-color-surface-container: 21 23 28;
+    --md-sys-color-surface-container-high: 25 28 32;
+    --md-sys-color-surface-container-highest: 29 32 36;
+
+    /* Role Colors (Ocean Dark) */
+    --role-judge-bg: 180 200 255;
+    /* Pastel Blue */
+    --role-judge: 20 30 60;
+    /* Deep Navy */
+    --role-prosecutor-bg: 180 220 180;
+    /* Pastel Green */
+    --role-prosecutor: 20 40 30;
+    /* Dark Green */
+    --role-defense-bg: 200 220 255;
+    /* Pastel Blue/Purple */
+    --role-defense: 30 40 70;
+    /* Dark Blue */
+    --role-system-bg: 40 42 47;
+    /* Dark Grey (Darkened) */
+    --role-system: 226 226 233;
+    /* Light Grey (Lightened) */
+    --md-sys-color-shadow: 0 0 0;
+    --md-sys-color-scrim: 0 0 0;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply backdrop-blur-md border border-white/10;
+    background-color: rgb(var(--md-sys-color-surface-container-low) / 0.8);
+  }
+}

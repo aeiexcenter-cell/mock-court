@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Court System - Frosted Vintage Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6d5e0f', // Deep Olive Gold
+                        'primary-light': '#8a791f',
+                        'warm-white': '#fdfbf7',
+                        'soft-beige': '#f3f4ea',
+                        'pale-gold': '#e8e4d3',
+                    },
+                    fontFamily: {
+                        serif: ['"Merriweather"', 'serif'],
+                        sans: ['"Inter"', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 8s ease-in-out infinite',
+                        'mesh': 'mesh 20s ease infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        mesh: {
+                            '0%, 100%': { backgroundPosition: '0% 50%' },
+                            '50%': { backgroundPosition: '100% 50%' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .frosted-glass {
+            background: rgba(253, 251, 247, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 40px -5px rgba(109, 94, 15, 0.1);
+        }
+
+        .frosted-input {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+
+        .frosted-input:focus {
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 0 2px #6d5e0f, 0 4px 12px rgba(109, 94, 15, 0.1);
+        }
+
+        /* Animated Mesh Gradient Background */
+        body {
+            background: linear-gradient(-45deg, #fdfbf7, #f3f4ea, #e8e4d3, #fdfbf7);
+            background-size: 400% 400%;
+            animation: mesh 15s ease infinite;
+        }
+    </style>
+</head>
+
+<body
+    class="h-screen w-full flex items-center justify-center font-sans antialiased text-[#4a4538] overflow-hidden selection:bg-[#6d5e0f]/20 selection:text-[#6d5e0f]">
+
+    <!-- Ambient Orbs (Soft Gold Glows) -->
+    <div
+        class="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-[#6d5e0f]/5 blur-[120px] pointer-events-none">
+    </div>
+    <div
+        class="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-[#d4c585]/20 blur-[120px] pointer-events-none">
+    </div>
+
+    <!-- Main Card Container -->
+    <main class="relative z-10 w-full max-w-5xl p-6">
+
+        <!-- The Frosted Crystal Card -->
+        <div class="frosted-glass rounded-[40px] flex overflow-hidden min-h-[600px] animate-float">
+
+            <!-- Left Side: Visual Storytelling (45%) -->
+            <div class="hidden lg:block w-[45%] relative">
+                <!-- Image with Warm Blend Mode -->
+                <img src="https://images.unsplash.com/photo-1505664194779-8beaceb93744?q=80&w=2670&auto=format&fit=crop"
+                    alt="Classic Architecture"
+                    class="absolute inset-0 w-full h-full object-cover mix-blend-multiply opacity-80 filter sepia-[0.3]">
+                <div class="absolute inset-0 bg-gradient-to-t from-[#6d5e0f]/60 to-transparent mix-blend-multiply">
+                </div>
+
+                <div class="absolute bottom-0 left-0 p-12 text-[#fdfbf7]">
+                    <div class="w-12 h-1 bg-white/60 mb-6 rounded-full backpack-blur-sm"></div>
+                    <h2 class="font-serif text-4xl font-bold leading-tight drop-shadow-md mb-4">
+                        Lex Aeterna
+                    </h2>
+                    <p class="text-sm font-medium opacity-90 leading-relaxed drop-shadow">
+                        Merging centuries of legal tradition with the precision of artificial intelligence.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Side: Login Form (55%) -->
+            <div class="w-full lg:w-[55%] p-12 flex flex-col justify-center relative">
+
+                <!-- Header -->
+                <div class="text-center mb-10">
+                    <div
+                        class="inline-flex justify-center items-center w-16 h-16 rounded-2xl bg-[#6d5e0f]/5 text-primary mb-6 shadow-sm border border-[#6d5e0f]/10">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                            <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />
+                            <path d="M7 21h10" />
+                            <path d="M12 3v18" />
+                            <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2" />
+                        </svg>
+                    </div>
+                    <h1 class="font-serif text-3xl font-bold text-primary mb-2">AI 庭审系统</h1>
+                    <p class="text-sm text-[#8c8674] font-medium tracking-wide">Enter your credentials to continue</p>
+                </div>
+
+                <!-- Form -->
+                <form class="space-y-6 max-w-sm mx-auto w-full">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-primary uppercase tracking-widest ml-1">Email</label>
+                        <input type="email"
+                            class="frosted-input w-full px-5 py-4 rounded-2xl text-primary font-medium placeholder-[#8c8674]/50 outline-none"
+                            placeholder="counselor@law.ai">
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between ml-1">
+                            <label class="text-xs font-bold text-primary uppercase tracking-widest">Password</label>
+                            <a href="#"
+                                class="text-xs font-bold text-primary/70 hover:text-primary transition-colors">Forgot
+                                Password?</a>
+                        </div>
+                        <input type="password"
+                            class="frosted-input w-full px-5 py-4 rounded-2xl text-primary font-medium placeholder-[#8c8674]/50 outline-none tracking-widest"
+                            placeholder="••••••••">
+                    </div>
+
+                    <div class="pt-4">
+                        <button
+                            class="w-full py-4 rounded-full bg-primary text-white font-bold text-sm shadow-lg shadow-[#6d5e0f]/20 hover:shadow-xl hover:shadow-[#6d5e0f]/30 hover:bg-[#5a4d0c] transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group">
+                            Sign In
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="transition-transform group-hover:translate-x-1">
+                                <path d="M5 12h14" />
+                                <path d="m12 5 7 7-7 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Footer -->
+                <div class="mt-12 text-center">
+                    <p class="text-xs text-[#8c8674] font-medium">
+                        Protected by <span class="text-primary font-bold">Judicial AI Protocol v3.0</span>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+</body>
+
+</html>

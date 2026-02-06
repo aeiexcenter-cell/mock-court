@@ -1,0 +1,547 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Gavel, Scale, ShieldAlert, ShieldCheck, Send, Play, RotateCcw, 
+  Plus, X, Terminal, Activity, FileText, Cpu, User, 
+  ChevronDown, ChevronUp, Paperclip, Image as ImageIcon, FileType,
+  Maximize2, Minimize2, Move, Filter, GripHorizontal, ArrowRight
+} from 'lucide-react';
+
+// --- Constants & Mock Data ---
+
+const GRAPH_STEPS = [
+  { id: 'input', label: 'User Input', desc: 'Receiving details' },
+  { id: 'retrieval', label: 'RAG Retrieval', desc: 'Legal DB Search' },
+  { id: 'analysis', label: 'Judge Agent', desc: 'Framework Analysis' },
+  { id: 'prosecutor', label: 'Prosecutor Agent', desc: 'Accusation' },
+  { id: 'defense', label: 'Defense Agent', desc: 'Rebuttal' },
+  { id: 'verdict', label: 'Final Verdict', desc: 'Conclusion' },
+];
+
+const INITIAL_MESSAGES = [
+  { id: 1, role: 'system', name: 'System', content: '系统已就绪。您可以上传证据，或直接开始对话。', timestamp: '10:00 AM' }
+];
+
+// --- Sub-Components ---
+
+const Button = ({ children, variant = 'primary', size = 'default', className = '', ...props }) => {
+  const baseStyle = "inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50";
+  const sizes = { default: "h-9 px-4 py-2", sm: "h-8 px-3 text-xs", icon: "h-9 w-9", xs: "h-6 px-2 text-[10px]" };
+  const variants = {
+    primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm",
+    secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200",
+    ghost: "hover:bg-slate-100 text-slate-700",
+    outline: "border border-slate-200 bg-white hover:bg-slate-100 text-slate-900"
+  };
+  return <button className={`${baseStyle} ${sizes[size]} ${variants[variant]} ${className}`} {...props}>{children}</button>;
+};
+
+const Badge = ({ role }) => {
+  const config = {
+    judge: { color: "bg-emerald-100 text-emerald-700 border-emerald-200", label: "Judge" },
+    prosecutor: { color: "bg-rose-100 text-rose-700 border-rose-200", label: "Prosecutor" },
+    defense: { color: "bg-blue-100 text-blue-700 border-blue-200", label: "Defense" },
+    user: { color: "bg-indigo-100 text-indigo-700 border-indigo-200", label: "Plaintiff" },
+    system: { color: "bg-slate-100 text-slate-500 border-slate-200", label: "System" }
+  };
+  const { color, label } = config[role] || config.system;
+  return <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${color}`}>{label}</span>;
+};
+
+const Avatar = ({ role }) => {
+  const styles = { judge: "bg-emerald-600", prosecutor: "bg-rose-600", defense: "bg-blue-600", user: "bg-indigo-600", system: "bg-slate-500" };
+  const icons = { judge: <Gavel size={16} />, prosecutor: <ShieldAlert size={16} />, defense: <ShieldCheck size={16} />, user: <User size={16} />, system: <Cpu size={16} /> };
+  return <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white shadow-sm ${styles[role] || styles.system}`}>{icons[role]}</div>;
+};
+
+// --- Draggable & Resizable Window Component ---
+const DraggableWindow = ({ win, onClose, onFocus, updatePosition, updateSize }) => {
+  // State for dragging
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
+  
+  // State for resizing
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeStart = useRef({ x: 0, y: 0, w: 0, h: 0 });
+
+  // Drag Handlers
+  const handleMouseDown = (e) => {
+    e.stopPropagation();
+    setIsDragging(true);
+    onFocus(win.id);
+    dragStart.current = { x: e.clientX - win.x, y: e.clientY - win.y };
+  };
+
+  // Resize Handlers
+  const handleResizeStart = (e) => {
+    e.stopPropagation();
+    setIsResizing(true);
+    onFocus(win.id);
+    resizeStart.current = { x: e.clientX, y: e.clientY, w: win.w, h: win.h };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (isDragging) {
+        updatePosition(win.id, e.clientX - dragStart.current.x, e.clientY - dragStart.current.y);
+      }
+      if (isResizing) {
+        const deltaX = e.clientX - resizeStart.current.x;
+        const deltaY = e.clientY - resizeStart.current.y;
+        updateSize(win.id, Math.max(200, resizeStart.current.w + deltaX), Math.max(150, resizeStart.current.h + deltaY));
+      }
+    };
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setIsResizing(false);
+    };
+    
+    if (isDragging || isResizing) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, isResizing, win.id, updatePosition, updateSize]);
+
+  return (
+    <div 
+      className="fixed rounded-xl bg-white shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
+      style={{ 
+        left: win.x, top: win.y, width: win.w, height: win.h, zIndex: win.zIndex,
+        transition: (isDragging || isResizing) ? 'none' : 'box-shadow 0.2s'
+      }}
+      onMouseDown={() => onFocus(win.id)}
+    >
+      {/* Window Header */}
+      <div 
+        className="h-9 bg-slate-100 border-b border-slate-200 flex items-center justify-between px-3 cursor-move select-none shrink-0"
+        onMouseDown={handleMouseDown}
+      >
+        <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+          <Move size={12} />
+          <span className="truncate max-w-[150px]">{win.title}</span>
+        </div>
+        <button onClick={(e) => { e.stopPropagation(); onClose(win.id); }} className="text-slate-400 hover:text-rose-500">
+          <X size={14} />
+        </button>
+      </div>
+      
+      {/* Content */}
+      <div className="flex-1 overflow-auto p-4 bg-white text-sm text-slate-700">
+        {win.type === 'image' ? (
+          <div className="flex flex-col items-center justify-center h-full bg-slate-50 rounded border border-slate-100 border-dashed p-4">
+             <ImageIcon size={48} className="text-slate-300 mb-2"/>
+             <span className="text-slate-500 font-medium">{win.content}</span>
+             <span className="text-xs text-slate-400 mt-1">Image Preview Simulation</span>
+          </div>
+        ) : (
+          <p className="whitespace-pre-wrap leading-relaxed break-words">{win.content}</p>
+        )}
+      </div>
+
+      {/* Resize Handle */}
+      <div 
+        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize flex items-end justify-end p-0.5 z-20"
+        onMouseDown={handleResizeStart}
+      >
+        <div className="w-2 h-2 border-r-2 border-b-2 border-slate-300 rounded-br-sm"></div>
+      </div>
+    </div>
+  );
+};
+
+// --- Main Application ---
+
+export default function MockCourtApp() {
+  // --- Layout State ---
+  const [leftWidth, setLeftWidth] = useState(320);
+  const [rightWidth, setRightWidth] = useState(300);
+  
+  // --- Core Data State ---
+  const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [roleFilter, setRoleFilter] = useState('all');
+  
+  // --- Settings State ---
+  const [temperature, setTemperature] = useState(0.7); // FIXED: State variable for Temperature
+  
+  // --- Input State ---
+  const [inputValue, setInputValue] = useState('');
+  const textareaRef = useRef(null);
+  const fileInputRef = useRef(null); // FIXED: Ref for file upload
+
+  // --- Evidence State ---
+  const [textEvidence, setTextEvidence] = useState(['微信聊天记录：被告承诺"下周还钱"']);
+  const [fileEvidence, setFileEvidence] = useState([
+    { name: '转账记录.pdf', type: 'pdf' }, 
+    { name: '现场照片.jpg', type: 'image' }
+  ]);
+  const [newEvidenceInput, setNewEvidenceInput] = useState('');
+  
+  // --- Window Manager State ---
+  const [windows, setWindows] = useState([]); 
+  const [nextZIndex, setNextZIndex] = useState(100);
+
+  // --- Simulation State ---
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [activeStep, setActiveStep] = useState(null);
+  const [logs, setLogs] = useState([]);
+  const [isLogsCollapsed, setIsLogsCollapsed] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  // --- Handlers: Window Management ---
+  const openWindow = (title, content, type = 'text') => {
+    const existing = windows.find(w => w.title === title);
+    if (existing) {
+      bringToFront(existing.id);
+      return;
+    }
+    const id = Date.now();
+    const offset = windows.length * 20;
+    // Add width/height to state
+    setWindows([...windows, {
+      id, title, content, type,
+      x: window.innerWidth / 2 - 200 + offset,
+      y: window.innerHeight / 2 - 150 + offset,
+      w: 400, // Default width
+      h: 300, // Default height
+      zIndex: nextZIndex
+    }]);
+    setNextZIndex(z => z + 1);
+  };
+
+  const closeWindow = (id) => setWindows(prev => prev.filter(w => w.id !== id));
+  const bringToFront = (id) => { setWindows(prev => prev.map(w => w.id === id ? { ...w, zIndex: nextZIndex } : w)); setNextZIndex(z => z + 1); };
+  const updateWindowPosition = (id, x, y) => { setWindows(prev => prev.map(w => w.id === id ? { ...w, x, y } : w)); };
+  const updateWindowSize = (id, w, h) => { setWindows(prev => prev.map(window => window.id === id ? { ...window, w, h } : window)); };
+
+  // --- Handlers: File Upload (Mock) ---
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const type = file.name.match(/\.(jpg|jpeg|png)$/) ? 'image' : 'pdf';
+      setFileEvidence([...fileEvidence, { name: file.name, type }]);
+      // Reset input
+      e.target.value = null; 
+    }
+  };
+
+  // --- Handlers: Resizing Layout ---
+  const startResizing = (direction) => (e) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = direction === 'left' ? leftWidth : rightWidth;
+    const onMouseMove = (moveEvent) => {
+      const delta = moveEvent.clientX - startX;
+      if (direction === 'left') setLeftWidth(Math.max(250, Math.min(500, startWidth + delta)));
+      else setRightWidth(Math.max(250, Math.min(500, startWidth - delta)));
+    };
+    const onMouseUp = () => { document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); };
+    document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp);
+  };
+
+  // --- Handlers: Chat & Simulation ---
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 160) + 'px';
+    }
+  }, [inputValue]);
+
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, roleFilter]);
+
+  const addLog = (msg) => setLogs(prev => [...prev, `[${new Date().toLocaleTimeString('en-GB')}] ${msg}`]);
+  const addMessage = (role, name, content) => { setMessages(prev => [...prev, { id: Date.now(), role, name, content, timestamp: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) }]); };
+
+  const handleStartTrial = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setLogs([]); setActiveStep('input'); addLog('Initializing Workflow...');
+    await wait(800); setActiveStep('retrieval'); addLog('RAG: Retrieving context...');
+    await wait(1200); setActiveStep('analysis'); addLog('Judge: Analyzing case...'); addMessage('judge', 'Judge AI', '庭审开始。请检方陈述。');
+    await wait(1500); setActiveStep('prosecutor'); addLog('Prosecutor: Generating...'); addMessage('prosecutor', 'Prosecutor AI', '被告行为已构成违约，证据确凿。由于涉及金额较大，我们建议从严处理。');
+    await wait(1500); setActiveStep('defense'); addLog('Defense: Rebutting...'); addMessage('defense', 'Defense AI', '我方持有异议。根据之前的聊天记录，这是一次非正式的资金往来，不具备严格的借贷法律效力。');
+    await wait(1500); setActiveStep('verdict'); addLog('Judge: Finalizing...');
+    await wait(1000); setActiveStep(null); setIsProcessing(false); addLog('Done.');
+  };
+
+  const handleSendMessage = () => {
+    if (!inputValue.trim()) return;
+    addMessage('user', 'User', inputValue);
+    setInputValue('');
+    setTimeout(() => addMessage('judge', 'Judge AI', '您的意见已记录。'), 800);
+  };
+  
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  const filteredMessages = roleFilter === 'all' ? messages : messages.filter(m => m.role === roleFilter);
+
+  return (
+    <div className="flex h-screen w-full bg-slate-100 font-sans text-slate-900 overflow-hidden selection:bg-indigo-100 relative">
+      
+      {/* --- FLOATING WINDOWS LAYER --- */}
+      {windows.map(win => (
+        <DraggableWindow key={win.id} win={win} onClose={closeWindow} onFocus={bringToFront} updatePosition={updateWindowPosition} updateSize={updateWindowSize} />
+      ))}
+
+      {/* --- 1. LEFT SIDEBAR (Resizable) --- */}
+      <div style={{ width: leftWidth }} className="flex flex-col border-r border-slate-200 bg-white shrink-0 relative z-10">
+        <div className="h-14 flex items-center px-4 border-b border-slate-100">
+           <Gavel className="h-5 w-5 text-indigo-600 mr-2" />
+           <span className="font-bold tracking-tight">AI Court System</span>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+          {/* Auto-grow Case Details */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase">Case Context</label>
+            <textarea 
+              className="w-full min-h-[80px] rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/50 resize-none overflow-hidden focus:overflow-auto transition-all"
+              placeholder="Input case details..."
+              onInput={(e) => {
+                e.target.style.height = "auto";
+                e.target.style.height = e.target.scrollHeight + "px";
+              }}
+              defaultValue="张三（原告）诉李四（被告）民间借贷纠纷一案..."
+            />
+          </div>
+
+          {/* Evidence */}
+          <div className="space-y-3">
+             <div className="flex items-center justify-between">
+               <label className="text-xs font-bold text-slate-500 uppercase">Evidence Chain</label>
+               <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">{textEvidence.length + fileEvidence.length} items</span>
+             </div>
+             
+             {/* File List */}
+             <div className="space-y-1.5">
+               {fileEvidence.map((f, i) => (
+                 <div key={i} onClick={() => openWindow(f.name, f.name, f.type)} className="flex items-center gap-3 p-2 rounded-md border border-slate-100 bg-slate-50 hover:bg-white hover:border-indigo-200 cursor-pointer group transition-all">
+                    <div className="h-8 w-8 rounded bg-white border border-slate-200 flex items-center justify-center shrink-0">
+                      {f.type === 'image' ? <ImageIcon size={14} className="text-purple-500"/> : <FileText size={14} className="text-red-500"/>}
+                    </div>
+                    <span className="text-sm truncate flex-1 text-slate-700">{f.name}</span>
+                    <button onClick={(e) => { e.stopPropagation(); setFileEvidence(l => l.filter((_, idx) => idx !== i)); }} className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-500"><X size={14}/></button>
+                 </div>
+               ))}
+             </div>
+
+             {/* Text List */}
+             <div className="flex flex-wrap gap-2">
+               {textEvidence.map((t, i) => (
+                 <button key={i} onClick={() => openWindow(`Evidence #${i+1}`, t, 'text')} className="max-w-full truncate px-2 py-1 rounded-md border border-slate-200 bg-white text-xs text-slate-600 hover:text-indigo-600 hover:border-indigo-200 shadow-sm text-left">
+                    {t}
+                 </button>
+               ))}
+             </div>
+
+             {/* Add Input & Upload */}
+             <div className="flex gap-2 pt-1">
+               <input 
+                 className="flex-1 h-8 rounded-md border border-slate-200 px-2 text-sm" 
+                 placeholder="New evidence..." 
+                 value={newEvidenceInput}
+                 onChange={e => setNewEvidenceInput(e.target.value)}
+                 onKeyDown={e => e.key === 'Enter' && newEvidenceInput && (setTextEvidence([...textEvidence, newEvidenceInput]), setNewEvidenceInput(''))}
+               />
+               
+               {/* Hidden File Input */}
+               <input 
+                 type="file" 
+                 ref={fileInputRef} 
+                 className="hidden" 
+                 onChange={handleFileUpload} 
+               />
+               <Button 
+                 size="icon" 
+                 variant="secondary" 
+                 className="h-8 w-8 shrink-0" 
+                 onClick={() => fileInputRef.current?.click()} 
+                 title="Upload File"
+               >
+                 <Paperclip size={14}/>
+               </Button>
+               <Button 
+                  size="icon" 
+                  variant="secondary" 
+                  className="h-8 w-8 shrink-0"
+                  onClick={() => {
+                    if(newEvidenceInput) {
+                      setTextEvidence([...textEvidence, newEvidenceInput]);
+                      setNewEvidenceInput('');
+                    }
+                  }}
+                >
+                  <Plus size={14}/>
+               </Button>
+             </div>
+          </div>
+
+          {/* Settings */}
+          <div className="space-y-3 pt-4 border-t border-slate-100">
+             <label className="text-xs font-bold text-slate-500 uppercase">Configuration</label>
+             <div className="flex items-center justify-between text-sm">
+               <span>Temperature</span>
+               <span className="font-mono text-xs bg-slate-100 px-1.5 rounded">{temperature}</span>
+             </div>
+             <input 
+               type="range" 
+               min="0" max="1" step="0.1" 
+               value={temperature}
+               onChange={(e) => setTemperature(e.target.value)}
+               className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" 
+             />
+          </div>
+        </div>
+
+        <div className="p-4 border-t border-slate-200 bg-slate-50 space-y-2">
+          <Button className="w-full" onClick={handleStartTrial} disabled={isProcessing}>
+             {isProcessing ? <Activity className="mr-2 animate-spin" size={16}/> : <Play className="mr-2" size={16}/>} 
+             Start Trial
+          </Button>
+          <Button variant="ghost" size="sm" className="w-full" onClick={() => { setMessages(INITIAL_MESSAGES); setLogs([]); setActiveStep(null); }}>
+             <RotateCcw className="mr-2" size={14}/> Reset
+          </Button>
+        </div>
+
+        {/* Resizer Handle */}
+        <div className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-indigo-500/50 transition-colors z-50" onMouseDown={startResizing('left')} />
+      </div>
+
+      {/* --- 2. CENTER STAGE (Chat) --- */}
+      <div className="flex-1 flex flex-col bg-slate-100/50 relative min-w-[400px]">
+        
+        {/* Filter Header */}
+        <div className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm z-20">
+           <div className="flex gap-1 bg-slate-100 p-1 rounded-lg shrink-0">
+              {['all', 'judge', 'prosecutor', 'defense', 'user'].map(role => (
+                <button 
+                  key={role}
+                  onClick={() => setRoleFilter(role)}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-all ${roleFilter === role ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  {role === 'all' ? 'All View' : role.charAt(0).toUpperCase() + role.slice(1)}
+                </button>
+              ))}
+           </div>
+           <div className="text-xs text-slate-400 font-mono hidden sm:block">ID: 8291-LAW</div>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 scroll-smooth">
+          {filteredMessages.map((msg) => (
+            <div key={msg.id} className={`flex gap-4 items-start max-w-3xl ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-2`}>
+              <Avatar role={msg.role} />
+              <div className={`flex-1 space-y-1 min-w-0 ${msg.role === 'user' ? 'text-right' : ''}`}>
+                <div className={`flex items-center gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                  <span className="font-bold text-slate-800 text-sm">{msg.name}</span>
+                  <Badge role={msg.role} />
+                  <span className="text-[10px] text-slate-400">{msg.timestamp}</span>
+                </div>
+                <div className={`text-sm leading-relaxed p-3.5 rounded-2xl shadow-sm border whitespace-pre-wrap break-words ${
+                  msg.role === 'user' ? 'bg-indigo-600 text-white border-indigo-600 rounded-tr-sm' 
+                  : msg.role === 'judge' ? 'bg-emerald-50 border-emerald-100 text-emerald-900 rounded-tl-sm'
+                  : msg.role === 'prosecutor' ? 'bg-rose-50 border-rose-100 text-rose-900 rounded-tl-sm'
+                  : msg.role === 'defense' ? 'bg-blue-50 border-blue-100 text-blue-900 rounded-tl-sm'
+                  : 'bg-white border-slate-200 text-slate-700 rounded-tl-sm'
+                }`}>
+                  {msg.content}
+                </div>
+              </div>
+            </div>
+          ))}
+          <div ref={messagesEndRef} className="h-2" />
+        </div>
+
+        {/* Auto-Expanding Input */}
+        <div className="p-4 bg-white border-t border-slate-200">
+          <div className="relative flex gap-2 max-w-4xl mx-auto">
+            <textarea 
+              ref={textareaRef}
+              rows={1}
+              className="flex-1 max-h-[200px] w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none shadow-inner"
+              placeholder="Type your statement here..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())}
+            />
+            <Button className="h-auto rounded-xl aspect-square self-end mb-px" onClick={handleSendMessage}>
+              <Send size={20} />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* --- 3. RIGHT PANEL (Resizable) --- */}
+      <div style={{ width: rightWidth }} className="flex flex-col border-l border-slate-200 bg-white shrink-0 relative z-10">
+        {/* Resizer Handle */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-indigo-500/50 transition-colors z-50 -ml-0.5" onMouseDown={startResizing('right')} />
+        
+        <div className="h-14 flex items-center px-5 border-b border-slate-100">
+           <Activity className="mr-2 text-indigo-600" size={18} />
+           <h2 className="font-bold text-slate-800">Execution Flow</h2>
+        </div>
+
+        <div className="flex-1 overflow-y-auto bg-slate-50/30">
+           <div className="p-6">
+             {/* NEW ALIGNMENT STRATEGY: Fixed Grid for Timeline */}
+             <div className="relative">
+               {/* Timeline Bar (Absolute centered in the icon column) */}
+               {/* Icon column is w-10 (40px). Center is 20px. Line width 2px. Left = 19px. */}
+               <div className="absolute left-[19px] top-4 bottom-4 w-0.5 bg-slate-200 z-0"></div>
+               
+               {/* Active Line (Animated) */}
+               <div 
+                  className="absolute left-[19px] top-4 w-0.5 bg-indigo-600 z-0 transition-all duration-700 ease-out"
+                  style={{ height: activeStep ? `${(GRAPH_STEPS.findIndex(s => s.id === activeStep) / (GRAPH_STEPS.length - 1)) * 100}%` : '0%' }}
+               ></div>
+
+               <div className="space-y-8 relative z-10">
+                 {GRAPH_STEPS.map((step, idx) => {
+                   const isActive = activeStep === step.id;
+                   const isPast = GRAPH_STEPS.findIndex(s => s.id === activeStep) > idx;
+                   return (
+                     <div key={step.id} className={`flex gap-4 items-start transition-all ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                       
+                       {/* Icon Container - Fixed Width 40px to ensure perfect vertical alignment */}
+                       <div className="w-10 shrink-0 flex justify-center"> 
+                         <div className={`relative h-10 w-10 flex items-center justify-center rounded-full border-2 transition-all duration-300 bg-white
+                            ${isActive ? 'border-indigo-600 shadow-[0_0_0_4px_rgba(79,70,229,0.1)] scale-110 text-indigo-600' : isPast ? 'border-indigo-600 text-indigo-600' : 'border-slate-300 text-slate-300'}
+                         `}>
+                            <div className={`h-2.5 w-2.5 rounded-full ${isActive || isPast ? 'bg-indigo-600' : 'bg-slate-300'}`} />
+                         </div>
+                       </div>
+
+                       <div className={`pt-1 ${isActive ? 'translate-x-1 transition-transform' : ''}`}>
+                          <h4 className={`text-sm font-bold ${isActive ? 'text-indigo-700' : 'text-slate-700'}`}>{step.label}</h4>
+                          <p className="text-xs text-slate-500 leading-tight mt-1">{step.desc}</p>
+                       </div>
+                     </div>
+                   )
+                 })}
+               </div>
+             </div>
+           </div>
+        </div>
+
+        {/* Collapsible Logs */}
+        <div className={`shrink-0 bg-slate-900 text-slate-300 flex flex-col transition-all duration-300 ease-in-out ${isLogsCollapsed ? 'h-10' : 'h-[200px]'}`}>
+          <div 
+            className="h-10 flex items-center justify-between px-4 bg-slate-800 border-t border-slate-700 cursor-pointer hover:bg-slate-700"
+            onClick={() => setIsLogsCollapsed(!isLogsCollapsed)}
+          >
+            <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400">
+               <Terminal size={14} /> System Logs
+            </div>
+            {isLogsCollapsed ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
+          </div>
+          <div className="flex-1 overflow-y-auto p-3 font-mono text-[10px] space-y-1 scrollbar-thin">
+             {logs.map((l, i) => <div key={i} className="opacity-80 hover:opacity-100 border-b border-slate-800/50 pb-1">{l}</div>)}
+             <div ref={el => el?.scrollIntoView()} />
+          </div>
+        </div>
+      </div>
+
+    </div>
+  );
+}
