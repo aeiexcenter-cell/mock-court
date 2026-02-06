@@ -1,0 +1,6 @@
+echo [1/2] Starting Frontend (Vite)...
+start "Frontend Dev" cmd /k " npm run dev"
+
+echo [2/2] Opening Browser...
+timeout /t 2 /nobreak >nul
+start http://localhost:5173
