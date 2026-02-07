@@ -119,7 +119,7 @@ const MessageInput: React.FC<MessageInputProps> = ({
     // Determine input state content
     const renderInputContent = () => {
         // 1. 庭审结束
-        if (currentPhase === 'END' || currentPhase === '结案') {
+        if (currentPhase === 'END' || currentPhase === '结案' || currentPhase === '已结束') {
             return (
                 <div className="flex-1 flex items-center justify-center h-full py-2 text-on-surface-variant/50 text-sm">
                     庭审已结束

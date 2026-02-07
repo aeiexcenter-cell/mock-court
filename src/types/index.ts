@@ -45,6 +45,8 @@ export type EvidenceType = 'file' | 'text' | 'image' | 'pdf';
 
 /** 基础证据接口 */
 interface BaseEvidence {
+    id?: string;
+    name?: string;
     /** 证据的所有者/发言人 (例如 "原告律师") */
     speaker: string;
 }

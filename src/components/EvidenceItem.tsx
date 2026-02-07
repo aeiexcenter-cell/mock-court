@@ -8,6 +8,7 @@ export type EvidenceItemType = 'file' | 'text';
 
 /** EvidenceItem 的文件证据数据 */
 export interface FileEvidenceData {
+    id?: string; // Add id
     name: string;
     type: EvidenceType;
     url: string | null;
@@ -16,6 +17,8 @@ export interface FileEvidenceData {
 
 /** EvidenceItem 的文本证据数据 */
 export interface TextEvidenceData {
+    id?: string; // Add id
+    name?: string; // Add name
     content: string;
     speaker: string;
 }
@@ -52,14 +55,23 @@ const EvidenceItem: React.FC<EvidenceItemProps> = ({
     const isFile = type === 'file';
     const speakerClass = getSpeakerBadgeStyles(data.speaker);
 
+    // 映射显示名称 (保留原始数据用于逻辑)
+    const speakerDisplayMap: Record<string, string> = {
+        '原告律师': '公诉方',
+        '被告律师': '辩护方'
+    };
+    const displaySpeaker = speakerDisplayMap[data.speaker] || data.speaker;
+
     // 确定显示属性
-    const displayName = (data as any).name || `证据 #${index + 1}`;
+    // 优先使用 data.name (文本和文件现在都有 name)，否则使用 data.id，最后回退到 index
+    const displayName = data.name || (data.id ? `${data.id}` : `证据 #${index + 1}`);
 
     // 使用提供的 ID 或回退到索引
-    const evidenceId = (data as any).id || `EVI-${String(index + 1).padStart(3, '0')}`;
+    const evidenceId = data.id || `EVI-${String(index + 1).padStart(3, '0')}`;
 
     // 在模态框中显示的内容
-    const modalTitle = isFile ? (data as FileEvidenceData).name : `证据 #${index + 1}`;
+    // 修复：不再强制使用 "证据 #index"，而是优先使用名称或ID
+    const modalTitle = data.name || `证据 ${evidenceId}`;
     const modalContent = isFile ? (data as FileEvidenceData).name : (data as TextEvidenceData).content;
     const modalType = isFile ? (data as FileEvidenceData).type : 'text';
     const modalUrl = isFile ? (data as FileEvidenceData).url : undefined;
@@ -90,7 +102,7 @@ const EvidenceItem: React.FC<EvidenceItemProps> = ({
 
             {/* Speaker Badge */}
             <span className={`shrink-0 text-[9px] px-2 py-0.5 rounded-full font-bold tracking-wide uppercase ${speakerClass}`}>
-                {data.speaker}
+                {displaySpeaker}
             </span>
         </div>
     );
