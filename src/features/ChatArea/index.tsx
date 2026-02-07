@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import DetailedInputWindow from '../../components/DetailedInputWindow';
+import EvidenceWindow from '../../components/EvidenceWindow';
 import type {
     Message,
     UserRole,
@@ -50,6 +51,11 @@ export interface ChatAreaProps {
     onFocusInputWindow: () => void;
     onUpdateInputWindowPos: (id: string | number, x: number, y: number) => void;
     onUpdateInputWindowSize: (id: string | number, w: number, h: number) => void;
+    // 证据窗口
+    evidenceWindowState?: WindowState;
+    onFocusEvidenceWindow?: () => void;
+    onUpdateEvidenceWindowPos?: (id: string | number, x: number, y: number) => void;
+    onUpdateEvidenceWindowSize?: (id: string | number, w: number, h: number) => void;
     // 新增：中断状态相关
     interruptState?: InterruptState;
     evidenceList?: BackendEvidence[];
@@ -88,6 +94,11 @@ const ChatArea: React.FC<ChatAreaProps> = ({
     onFocusInputWindow,
     onUpdateInputWindowPos,
     onUpdateInputWindowSize,
+    // 证据窗口
+    evidenceWindowState,
+    onFocusEvidenceWindow,
+    onUpdateEvidenceWindowPos,
+    onUpdateEvidenceWindowSize,
     // 新增
     interruptState,
     evidenceList = [],
@@ -95,6 +106,46 @@ const ChatArea: React.FC<ChatAreaProps> = ({
 }) => {
     // 多选角色过滤状态
     const [visibleRoles, setVisibleRoles] = useState<UIRole[]>(ALL_ROLES);
+
+    // 内部证据窗口状态（当外部未提供时使用）
+    const [internalEvidenceWinState, setInternalEvidenceWinState] = useState<WindowState>({
+        id: 'evidence-window',
+        x: Math.max(100, window.innerWidth / 2 - 300),
+        y: Math.max(80, window.innerHeight / 2 - 250),
+        w: 600,
+        h: 500,
+        zIndex: 100
+    });
+
+    // 使用外部状态或内部状态
+    const effectiveEvidenceWinState = evidenceWindowState || internalEvidenceWinState;
+
+    const handleUpdateEvidencePos = (id: string | number, x: number, y: number) => {
+        if (onUpdateEvidenceWindowPos) {
+            onUpdateEvidenceWindowPos(id, x, y);
+        } else {
+            setInternalEvidenceWinState(prev => ({ ...prev, x, y }));
+        }
+    };
+
+    const handleUpdateEvidenceSize = (id: string | number, w: number, h: number) => {
+        if (onUpdateEvidenceWindowSize) {
+            onUpdateEvidenceWindowSize(id, w, h);
+        } else {
+            setInternalEvidenceWinState(prev => ({ ...prev, w, h }));
+        }
+    };
+
+    const handleFocusEvidence = () => {
+        if (onFocusEvidenceWindow) {
+            onFocusEvidenceWindow();
+        } else {
+            setInternalEvidenceWinState(prev => ({ ...prev, zIndex: prev.zIndex + 1 }));
+        }
+    };
+
+    // 判断是否显示证据窗口
+    const showEvidenceWindow = interruptState?.isInterrupted && interruptState?.inputType === 'evidence';
 
     // 切换角色可见性
     const toggleRole = (role: UIRole) => {
@@ -113,6 +164,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({
     const handleSendAndClose = () => {
         onSendMessage();
         onCloseLongForm();
+    };
+
+    // 处理证据提交
+    const handleEvidenceSubmit = (payload: EvidenceInputPayload) => {
+        if (onRespondToInterrupt) {
+            onRespondToInterrupt(payload);
+        }
     };
 
     return (
@@ -149,7 +207,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({
                             <span className="font-bold text-primary text-sm">{currentPhase}</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-on-surface-variant font-bold uppercase text-[9px] tracking-widest">发言人</span>
+                            <span className="text-on-surface-variant font-bold uppercase text-[9px] tracking-widest">当前发言</span>
                             <span className="font-bold text-primary text-sm">{currentSpeaker || '无'}</span>
                         </div>
                     </div>
@@ -180,8 +238,22 @@ const ChatArea: React.FC<ChatAreaProps> = ({
                 isTurnToSpeak={isTurnToSpeak}
                 isLongFormMode={isLongFormMode}
                 interruptState={interruptState}
-                evidenceList={evidenceList}
                 onRespondToInterrupt={onRespondToInterrupt}
+                currentPhase={currentPhase}
+                isConnected={isConnected}
+            />
+
+            {/* 证据选择浮动窗口 */}
+            <EvidenceWindow
+                isOpen={!!showEvidenceWindow}
+                prompt={interruptState?.prompt || '请选择证据'}
+                evidenceList={evidenceList}
+                onSubmit={handleEvidenceSubmit}
+                onClose={() => { }}
+                winState={effectiveEvidenceWinState}
+                updatePosition={handleUpdateEvidencePos}
+                updateSize={handleUpdateEvidenceSize}
+                onFocus={handleFocusEvidence}
             />
 
             {/* 详细输入窗口 */}

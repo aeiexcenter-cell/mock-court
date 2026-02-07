@@ -268,6 +268,8 @@ export interface SessionState {
     logs: string[];
     /** 中断状态 (新增) */
     interruptState: InterruptState;
+    /** 最近一次中断请求（用于重试） */
+    lastInterruptReq: InterruptState | null;
     /** 进度百分比 0-100 (新增) */
     progress: number;
     /** 争议焦点列表 (新增) */
@@ -287,6 +289,7 @@ export interface SessionActions {
     clearSession: () => Promise<void>;
     sendMessage: (content: string, selectedRole: UserRole) => boolean;
     respondToInterrupt: (input: boolean | string | EvidenceInputPayload) => void;
+    retry: () => void;
     addMessage: (role: UIRole, name: string, content: string, isSelf?: boolean, nodeName?: string) => void;
     addLog: (msg: string) => void;
 }

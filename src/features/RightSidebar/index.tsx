@@ -18,6 +18,9 @@ export interface RightSidebarProps {
     activeNode: ActiveNode;
     // Progress
     progress?: number;
+    // Retry support
+    lastInterruptReq?: any;
+    onRetry?: () => void;
     // Actions
     onStartTrial: () => void;
     onNextStep: () => void;
@@ -95,6 +98,8 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
     currentPhase,
     activeNode,
     progress = 0,
+    lastInterruptReq,
+    onRetry,
     onStartTrial,
 }) => {
     const isUserNode = (stepId: ActiveNode): boolean => USER_NODE_MAP[selectedRole] === stepId;
@@ -149,6 +154,22 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                     )}
                     {isConnecting ? '连接中...' : (isConnected ? '结束会话' : '开始庭审')}
                 </Button>
+
+                {/* 重试按钮 - 只在庭审开始后出现 */}
+                {isConnected && onRetry && (
+                    <Button
+                        variant="secondary"
+                        onClick={onRetry}
+                        disabled={!lastInterruptReq} // 只有在有上下文可重试时启用
+                        className={`w-full font-bold transition-all ${!lastInterruptReq ? 'opacity-50 cursor-not-allowed' : 'hover:bg-yellow-500/10 hover:text-yellow-600 border border-transparent hover:border-yellow-500/30'}`}
+                        size="md"
+                    >
+                        <div className="flex items-center gap-2">
+                            <RotateCcw size={16} className={lastInterruptReq ? "text-yellow-500" : ""} />
+                            <span>重试上一步</span>
+                        </div>
+                    </Button>
+                )}
 
                 {/* 进度条 (连接后显示) */}
                 {isConnected && (

@@ -100,6 +100,8 @@ export interface TrialState {
     evidenceList: BackendEvidence[];
     // 日志
     logs: string[];
+    // 最近一次中断请求（用于重试）
+    lastInterruptReq: InterruptState | null;
 }
 
 type TrialAction =
@@ -118,6 +120,7 @@ type TrialAction =
         }
     }
     | { type: 'INTERRUPT_REQUEST'; payload: InterruptState }
+    | { type: 'RESTORE_INTERRUPT'; payload: InterruptState }
     | { type: 'CLEAR_INTERRUPT' }
     | { type: 'TRIAL_COMPLETED' }
     | { type: 'CONNECTION_ERROR' }
@@ -144,7 +147,8 @@ const initialState: TrialState = {
     progress: 0,
     focus: [],
     evidenceList: [],
-    logs: []
+    logs: [],
+    lastInterruptReq: null
 };
 
 function trialReducer(state: TrialState, action: TrialAction): TrialState {
@@ -191,6 +195,15 @@ function trialReducer(state: TrialState, action: TrialAction): TrialState {
             };
 
         case 'INTERRUPT_REQUEST':
+            return {
+                ...state,
+                interruptState: action.payload,
+                lastInterruptReq: action.payload, // 保存最新请求用于重试
+                isTurnToSpeak: true,
+                activeNode: nodeNameToActiveNode(action.payload.nodeName || '')
+            };
+
+        case 'RESTORE_INTERRUPT':
             return {
                 ...state,
                 interruptState: action.payload,

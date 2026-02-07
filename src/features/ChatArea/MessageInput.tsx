@@ -1,27 +1,21 @@
 import React, { useRef } from 'react';
 import { Send, Maximize2 } from 'lucide-react';
-import { BooleanInput, StringInput, EvidenceSelector } from './InputModes';
-import type { InterruptState, BackendEvidence, EvidenceInputPayload } from '../../types';
+import { BooleanInput, StringInput } from './InputModes';
+import type { InterruptState, EvidenceInputPayload } from '../../types';
+import ThinkingIndicator from '../../components/ThinkingIndicator';
 
 export interface MessageInputProps {
-    /** 文本输入值 */
     inputValue: string;
-    /** 文本输入变化回调 */
     onInputChange: (value: string) => void;
-    /** 发送消息回调 (旧版兼容) */
     onSendMessage: () => void;
-    /** 展开输入框回调 */
     onExpandInput: () => void;
-    /** 是否轮到用户发言 */
     isTurnToSpeak: boolean;
-    /** 是否处于长文本模式 */
     isLongFormMode: boolean;
-    /** 中断状态 (新增) */
     interruptState?: InterruptState;
-    /** 证据列表 (新增) */
-    evidenceList?: BackendEvidence[];
-    /** 响应中断回调 (新增) */
     onRespondToInterrupt?: (input: boolean | string | EvidenceInputPayload) => void;
+    // 新增：状态相关
+    currentPhase?: string;
+    isConnected?: boolean;
 }
 
 /**
@@ -41,8 +35,9 @@ const MessageInput: React.FC<MessageInputProps> = ({
     isTurnToSpeak,
     isLongFormMode,
     interruptState,
-    evidenceList = [],
-    onRespondToInterrupt
+    onRespondToInterrupt,
+    currentPhase,
+    isConnected
 }) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -78,13 +73,15 @@ const MessageInput: React.FC<MessageInputProps> = ({
                 );
 
             case 'evidence':
+                // 证据选择现在由浮动窗口处理，这里显示提示状态
                 return (
                     <div className={containerClass}>
-                        <EvidenceSelector
-                            prompt={interruptState.prompt}
-                            evidenceList={evidenceList}
-                            onSubmit={handleInterruptResponse}
-                        />
+                        <div className="w-full max-w-md mx-auto text-center py-6">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                                <span className="animate-pulse">●</span>
+                                请在浮动窗口中选择证据
+                            </div>
+                        </div>
                     </div>
                 );
 
@@ -119,36 +116,75 @@ const MessageInput: React.FC<MessageInputProps> = ({
         }
     };
 
+    // Determine input state content
+    const renderInputContent = () => {
+        // 1. 庭审结束
+        if (currentPhase === 'END' || currentPhase === '结案') {
+            return (
+                <div className="flex-1 flex items-center justify-center h-full py-2 text-on-surface-variant/50 text-sm">
+                    庭审已结束
+                </div>
+            );
+        }
+
+        // 2. 庭审未开始 (未连接或处于开始阶段)
+        // 只要不是 END 且 (未连接 或 phase 为空/START) 都视为未开始
+        if (!isConnected || !currentPhase || currentPhase === 'START') {
+            return (
+                <div className="flex-1 flex items-center justify-center h-full py-2 text-on-surface-variant/50 text-sm">
+                    庭审未开始
+                </div>
+            );
+        }
+
+        // 3. 庭审进行中 - 非发言回合 (思考/他人发言)
+        if (!isTurnToSpeak) {
+            return (
+                <div className="flex-1 flex items-center justify-center h-full py-2">
+                    <ThinkingIndicator />
+                </div>
+            );
+        }
+
+        // 4. 轮到发言 - 输入框
+        return (
+            <textarea
+                ref={textareaRef}
+                rows={1}
+                className="flex-1 bg-transparent border-none text-on-surface px-4 text-sm focus:outline-none focus:ring-0 resize-none max-h-32 py-2.5 placeholder:text-on-surface-variant/50"
+                placeholder="输入您的发言..."
+                value={inputValue}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                autoFocus
+            />
+        );
+    };
+
     return (
         <div className={`
             absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 z-30
             transition-all duration-300 ease-in-out
             ${isLongFormMode ? 'translate-y-[200%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}
         `}>
-            <div className="relative shadow-lg rounded-full bg-surface-container-high flex items-center p-2 border border-outline-variant/20 transition-all hover:bg-surface-container-highest hover:shadow-xl ring-0 focus-within:ring-2 ring-primary/50">
-                <textarea
-                    ref={textareaRef}
-                    disabled={!isTurnToSpeak}
-                    rows={1}
-                    className="flex-1 bg-transparent border-none text-on-surface px-4 text-sm focus:outline-none focus:ring-0 resize-none max-h-32 py-2.5 placeholder:text-on-surface-variant/50 disabled:opacity-50"
-                    placeholder={isTurnToSpeak ? "输入您的发言..." : "等待其他方发言..."}
-                    value={inputValue}
-                    onChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                />
+            <div className="relative shadow-lg rounded-full bg-surface-container-high flex items-center p-2 border border-outline-variant/20 transition-all min-h-[56px] ring-0 focus-within:ring-2 ring-primary/50">
+                {/* 动态渲染核心内容 */}
+                {renderInputContent()}
+
+                {/* 按钮区域 - 始终显示 (除了输入框本身被禁用外，按钮根据 isTurnToSpeak 禁用) */}
                 <div className="flex items-center gap-1 pr-1">
                     <button
-                        className="p-2.5 rounded-full text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+                        className="p-2.5 rounded-full text-on-surface-variant hover:bg-primary hover:text-on-primary transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50"
                         title="展开输入框"
-                        disabled={!isTurnToSpeak}
                         onClick={onExpandInput}
+                        disabled={!isTurnToSpeak}
                     >
                         <Maximize2 size={18} />
                     </button>
                     <button
                         onClick={onSendMessage}
                         disabled={!isTurnToSpeak}
-                        className={`p-2.5 rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none ${inputValue.trim()
+                        className={`p-2.5 rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none disabled:opacity-50 disabled:bg-surface-container-highest disabled:text-on-surface-variant/50 ${inputValue.trim() && isTurnToSpeak
                             ? 'bg-primary text-on-primary shadow-md scale-100 hover:bg-primary/90'
                             : 'bg-surface-container text-on-surface-variant scale-95'
                             }`}

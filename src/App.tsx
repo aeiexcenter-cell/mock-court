@@ -62,20 +62,20 @@ const DEFAULT_CASE_INFO: CaseInfo = {
 
 // --- 预设证据列表 (来自 demo.html) ---
 const DEFAULT_EVIDENCE_LIST: BackendEvidence[] = [
-    { id: "E001", name: "一号案例说明", content: "本案控方以程振贤构成过失致人死亡罪起诉，辩方进行无罪辩护；庭审准备遵循案情概要所述立场；只涉及程振贤一人一案，无刑事附带民事诉讼；程序合法，无违法行为；证据原始且取证合法；地名人名虚拟。", provider: "defendant" },
-    { id: "E002", name: "案情概要", content: "公诉机关江山市北湖区人民检察院，被告人程振贤；2016年3月24日程振贤饮酒后驾无号牌电动车搭载醉酒张龙，与路边小货车碰撞，后送张龙至旅店离开；次日张龙死亡，经鉴定为钝性暴力致严重颅脑损伤死亡。", provider: "defendant" },
-    { id: "E003", name: "起诉意见书", content: "江公北诉字[2016]03449号；嫌疑人程振贤基本信息；案情：2016年3月24日晚与张龙喝酒后驾电动车碰撞小货车，未送医而送至出租屋；次日张龙死亡；证据包括供述、现场勘验、法医鉴定、证言；涉嫌过失致人死亡罪。", provider: "defendant" },
-    { id: "E004", name: "常住人口户籍资料", content: "程振贤，男，1989年9月23日生，身份证456878198909236532，汉族，户籍海宁省武鸣市彩云县禄水乡清湖区雷打浦四巷8号。", provider: "defendant" },
+    { id: "E001", name: "一号案例说明", content: "本案控方以程振贤构成过失致人死亡罪起诉，辩方进行无罪辩护；庭审准备遵循案情概要所述立场；只涉及程振贤一人一案，无刑事附带民事诉讼；程序合法，无违法行为；证据原始且取证合法；地名人名虚拟。", provider: "prosecutor" },
+    { id: "E002", name: "案情概要", content: "公诉机关江山市北湖区人民检察院，被告人程振贤；2016年3月24日程振贤饮酒后驾无号牌电动车搭载醉酒张龙，与路边小货车碰撞，后送张龙至旅店离开；次日张龙死亡，经鉴定为钝性暴力致严重颅脑损伤死亡。", provider: "prosecutor" },
+    { id: "E003", name: "起诉意见书", content: "江公北诉字[2016]03449号；嫌疑人程振贤基本信息；案情：2016年3月24日晚与张龙喝酒后驾电动车碰撞小货车，未送医而送至出租屋；次日张龙死亡；证据包括供述、现场勘验、法医鉴定、证言；涉嫌过失致人死亡罪。", provider: "prosecutor" },
+    { id: "E004", name: "常住人口户籍资料", content: "程振贤，男，1989年9月23日生，身份证456878198909236532，汉族，户籍海宁省武鸣市彩云县禄水乡清湖区雷打浦四巷8号。", provider: "prosecutor" },
     { id: "E005", name: "现场勘验笔录", content: "江公(北)勘[2016]7547号；勘验兴旺美食店西侧旅馆208房间及相关现场，发现尸体、血迹、刮擦痕迹；包括示意图和照片。", provider: "prosecutor" },
     { id: "E006", name: "法医学尸体检验鉴定书", content: "江公北(司)鉴(法)[2016]2478号；张龙尸体检验：多处挫擦伤、头皮下血肿、颅骨骨折、硬膜下血肿、脑疝形成；死因钝性暴力致严重颅脑损伤死亡。", provider: "prosecutor" },
     { id: "E007", name: "黄晨询问笔录", content: "黄晨（房东）描述：2016年3月25日凌晨三男一女租208房，醉酒男子入住后其他人离开；上午发现男子异样，报警；医生确认死亡。", provider: "prosecutor" },
     { id: "E008", name: "潘彩云询问笔录", content: "潘彩云（房东妻子）描述：上午查房发现208房客人无反应，通知丈夫；三人送客入住，无人照顾；房间无凌乱痕迹。", provider: "prosecutor" },
     { id: "E009", name: "刘海月询问笔录", content: "刘海月描述：凌晨程振贤叫帮忙开房，扶醉酒朋友入住后离开；上午房东通知，发现死亡。", provider: "prosecutor" },
-    { id: "E010", name: "程振贤询问笔录", content: "程振贤描述：与小龙（张龙）喝酒后驾电动车碰撞小货车，倒地后送小龙至旅店休息；上午发现死亡。", provider: "defendant" },
-    { id: "E011", name: "程振贤第一次讯问笔录", content: "程振贤供述：喝酒细节、碰撞过程、未送医原因、送至旅店经过；以为醉酒未受伤。", provider: "defendant" },
-    { id: "E012", name: "程振贤第二次讯问笔录", content: "程振贤供述：喝酒量、碰撞细节、小龙醉酒状态、检查伤势；无摩托驾照。", provider: "defendant" },
-    { id: "E013", name: "程振贤第三次讯问笔录", content: "程振贤供述：扶小龙至旅店过程、未送医原因。", provider: "defendant" },
-    { id: "E014", name: "程振贤第四次讯问笔录", content: "程振贤供述：确认碰撞致伤、接受逮捕。", provider: "defendant" },
+    { id: "E010", name: "程振贤询问笔录", content: "程振贤描述：与小龙（张龙）喝酒后驾电动车碰撞小货车，倒地后送小龙至旅店休息；上午发现死亡。", provider: "prosecutor" },
+    { id: "E011", name: "程振贤第一次讯问笔录", content: "程振贤供述：喝酒细节、碰撞过程、未送医原因、送至旅店经过；以为醉酒未受伤。", provider: "prosecutor" },
+    { id: "E012", name: "程振贤第二次讯问笔录", content: "程振贤供述：喝酒量、碰撞细节、小龙醉酒状态、检查伤势；无摩托驾照。", provider: "prosecutor" },
+    { id: "E013", name: "程振贤第三次讯问笔录", content: "程振贤供述：扶小龙至旅店过程、未送医原因。", provider: "prosecutor" },
+    { id: "E014", name: "程振贤第四次讯问笔录", content: "程振贤供述：确认碰撞致伤、接受逮捕。", provider: "prosecutor" },
     { id: "E015", name: "现勘照片和图表", content: "包括旅馆房间照片、血迹、现场路况、小货车刮擦痕迹、尸体位置等视觉证据。", provider: "prosecutor" },
     { id: "E016", name: "无罪辩护词主体", content: "辩护人认为被告无罪：无主观过失、未预见死亡风险、积极救助行为、死因可能为醉酒或他因；引用法律和类似案例论证。", provider: "defendant" }
 ];
@@ -89,10 +89,10 @@ export default function MockCourtApp(): React.ReactElement {
     const {
         messages, isConnected, isConnecting, sessionId,
         currentPhase, currentSpeaker, activeNode, isTurnToSpeak, logs,
-        interruptState, progress, evidenceList
+        interruptState, progress, evidenceList, lastInterruptReq
     } = sessionState;
 
-    const { connect, sendMessage, respondToInterrupt, clearSession } = actions;
+    const { connect, sendMessage, respondToInterrupt, clearSession, retry } = actions;
 
     // --- 窗口管理器 Hook ---
     const { windows, windowActions, inputWindow, inputWindowActions } = useWindowManager();
@@ -339,6 +339,8 @@ export default function MockCourtApp(): React.ReactElement {
                 progress={progress}
                 onStartTrial={handleStartTrial}
                 onNextStep={handleClearSession}
+                lastInterruptReq={lastInterruptReq}
+                onRetry={retry}
             />
 
         </div>

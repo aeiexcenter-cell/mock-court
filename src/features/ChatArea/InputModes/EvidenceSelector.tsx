@@ -51,7 +51,7 @@ const EvidenceSelector: React.FC<EvidenceSelectorProps> = ({
 
         if (showType === 'quit') {
             payload = {
-                current_evidence: null,
+                current_evidence: [], // 发送空数组以通过 list[Evidence] 校验
                 messages: '放弃举证'
             };
         } else if (showType === 'single' && selectedEvidence.length > 0) {
@@ -82,7 +82,7 @@ const EvidenceSelector: React.FC<EvidenceSelectorProps> = ({
                         证据提交
                     </div>
                     <p className="text-on-surface text-base font-medium">
-                        {prompt}
+                        {prompt.replace(/\（.*JSON.*?\）/g, '').replace(/\(.*?JSON.*?\)/g, '')}
                     </p>
                 </div>
 
@@ -93,8 +93,8 @@ const EvidenceSelector: React.FC<EvidenceSelectorProps> = ({
                         <button
                             onClick={() => { setShowType('single'); setSelectedEvidence([]); }}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${showType === 'single'
-                                    ? 'bg-primary text-on-primary'
-                                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                                ? 'bg-primary text-on-primary'
+                                : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
                                 }`}
                         >
                             单一证据
@@ -102,8 +102,8 @@ const EvidenceSelector: React.FC<EvidenceSelectorProps> = ({
                         <button
                             onClick={() => { setShowType('union'); setSelectedEvidence([]); }}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${showType === 'union'
-                                    ? 'bg-primary text-on-primary'
-                                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                                ? 'bg-primary text-on-primary'
+                                : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
                                 }`}
                         >
                             <Layers size={12} />
@@ -112,8 +112,8 @@ const EvidenceSelector: React.FC<EvidenceSelectorProps> = ({
                         <button
                             onClick={() => { setShowType('quit'); setSelectedEvidence([]); }}
                             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1 ${showType === 'quit'
-                                    ? 'bg-error text-white'
-                                    : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+                                ? 'bg-error text-white'
+                                : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
                                 }`}
                         >
                             <XCircle size={12} />
@@ -136,8 +136,8 @@ const EvidenceSelector: React.FC<EvidenceSelectorProps> = ({
                                     <label
                                         key={ev.id}
                                         className={`flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-all ${isSelected
-                                                ? 'bg-primary/15 border border-primary/30'
-                                                : 'bg-surface-container hover:bg-surface-container-high border border-transparent'
+                                            ? 'bg-primary/15 border border-primary/30'
+                                            : 'bg-surface-container hover:bg-surface-container-high border border-transparent'
                                             }`}
                                     >
                                         <input
@@ -152,8 +152,8 @@ const EvidenceSelector: React.FC<EvidenceSelectorProps> = ({
                                                     [{ev.id}] {ev.name}
                                                 </span>
                                                 <span className={`text-[10px] px-1.5 py-0.5 rounded ${ev.provider === 'prosecutor'
-                                                        ? 'bg-prosecutor/20 text-prosecutor'
-                                                        : 'bg-defense/20 text-defense'
+                                                    ? 'bg-prosecutor/20 text-prosecutor'
+                                                    : 'bg-defense/20 text-defense'
                                                     }`}>
                                                     {ev.provider === 'prosecutor' ? '控方' : '辩方'}
                                                 </span>
@@ -172,12 +172,12 @@ const EvidenceSelector: React.FC<EvidenceSelectorProps> = ({
                 {/* 举证说明输入 */}
                 {showType !== 'quit' && (
                     <div className="mb-4">
-                        <input
-                            type="text"
+                        <textarea
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            placeholder="举证说明（可选）..."
-                            className="w-full bg-surface-container border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                            placeholder="请输入您的质证意见或举证说明..."
+                            rows={3}
+                            className="w-full bg-surface-container border border-outline-variant/30 rounded-lg px-4 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 resize-none"
                         />
                     </div>
                 )}

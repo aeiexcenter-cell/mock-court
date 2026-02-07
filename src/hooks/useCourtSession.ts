@@ -6,10 +6,9 @@
  * 
  */
 import { useCallback, useMemo } from 'react';
-import { useTrialState, NODE_TO_PHASE, inferUIRole, extractSpeakerName, nodeNameToActiveNode, INITIAL_INTERRUPT_STATE } from './useTrialState';
+import { useTrialState, NODE_TO_PHASE, inferUIRole, extractSpeakerName, nodeNameToActiveNode } from './useTrialState';
 import { useWebSocket } from './useWebSocket';
 import type {
-    Message,
     UIRole,
     SessionState,
     SessionActions,
@@ -65,13 +64,17 @@ export function useCourtSession(): UseCourtSessionReturn {
     // --- WebSocket 事件处理器 ---
 
     const handleSessionCreated = useCallback((data: SessionCreatedData) => {
+        // 重置去重状态，确保新会话的消息不会被误判为重复
+        processedMessageCountRef.current = 0;
+        processedContentSetRef.current.clear();
+
         dispatch({
             type: 'SESSION_CREATED',
             payload: { sessionId: data.thread_id, threadId: data.thread_id }
         });
         addLog(`会话创建成功: ${data.thread_id.slice(0, 8)}...`);
         addMessage('system', 'System', '已连接到法庭会话，庭审即将开始...');
-    }, [dispatch, addLog, addMessage]);
+    }, [dispatch, addLog, addMessage, processedMessageCountRef, processedContentSetRef]);
 
     const handleNodeExecuted = useCallback((data: NodeExecutedData) => {
         const nodeName = data.node_name;
@@ -91,14 +94,12 @@ export function useCourtSession(): UseCourtSessionReturn {
         });
 
         // 处理新消息
+        // 后端现在只发送当前节点的新消息（delta），不需要切片
         if (data.messages && data.messages.length > 0) {
-            const totalBackendMessages = data.message_count || 0;
-            const alreadyProcessed = processedMessageCountRef.current;
-            const newMessageCount = totalBackendMessages - alreadyProcessed;
-            const newMessages = data.messages.slice(-newMessageCount);
-
-            newMessages.forEach(msg => {
-                if (msg.type === 'human') return;
+            data.messages.forEach(msg => {
+                // 注意：不再跳过 type === 'human' 的消息
+                // 因为后端的 ChatPromptTemplate.to_messages() 会生成 HumanMessage，
+                // 但它们实际上是法庭公告（如 judge_open 的开庭声明）应该显示
 
                 // 使用 ref 进行去重，避免闭包问题
                 const contentHash = `${msg.name || ''}::${msg.content?.slice(0, 100) || ''}`;
@@ -113,7 +114,10 @@ export function useCourtSession(): UseCourtSessionReturn {
                 addMessage(role, name, msg.content, false, nodeName);
             });
 
-            processedMessageCountRef.current = totalBackendMessages;
+            // 更新已处理消息计数（用于同步检查，不再用于切片）
+            if (data.message_count) {
+                processedMessageCountRef.current = data.message_count;
+            }
         }
     }, [dispatch, addLog, addMessage, processedMessageCountRef, processedContentSetRef]);
 
@@ -218,8 +222,9 @@ export function useCourtSession(): UseCourtSessionReturn {
         wsDisconnect();
         dispatch({ type: 'RESET' });
         processedMessageCountRef.current = 0;
+        processedContentSetRef.current.clear(); // 清空内容哈希集合，防止新会话消息被误判为重复
         addLog('会话已清除。');
-    }, [wsDisconnect, dispatch, addLog, processedMessageCountRef]);
+    }, [wsDisconnect, dispatch, addLog, processedMessageCountRef, processedContentSetRef]);
 
     const respondToInterrupt = useCallback((
         input: boolean | string | EvidenceInputPayload
@@ -242,13 +247,22 @@ export function useCourtSession(): UseCourtSessionReturn {
                 displayContent = input.messages || '已提交证据';
             }
 
+            // 将用户消息内容加入去重集合，防止后端返回时重复显示
+            // 使用多种可能的 hash key 以确保覆盖后端可能使用的不同 name 格式
+            const contentPrefix = displayContent.slice(0, 100);
+            processedContentSetRef.current.add(`用户 (辩护代理人)::${contentPrefix}`);
+            processedContentSetRef.current.add(`::${contentPrefix}`); // 无 name 情况
+            processedContentSetRef.current.add(`辩护代理人::${contentPrefix}`);
+            // 后端使用格式：辩护代理人{state.meta.attorney_name}，例如 "辩护代理人李某（北京典谟律师事务所）"
+            processedContentSetRef.current.add(`辩护代理人李某（北京典谟律师事务所）::${contentPrefix}`);
+
             addMessage('defense', '用户 (辩护代理人)', displayContent, true);
             dispatch({ type: 'CLEAR_INTERRUPT' });
         } catch (e) {
             const error = e as Error;
             addLog(`发送输入失败: ${error.message}`);
         }
-    }, [state.interruptState, sendUserInput, dispatch, addLog, addMessage]);
+    }, [state.interruptState, sendUserInput, dispatch, addLog, addMessage, processedContentSetRef]);
 
     const sendMessage = useCallback((content: string, _selectedRole: UserRole): boolean => {
         if (!content.trim()) return false;
@@ -260,6 +274,16 @@ export function useCourtSession(): UseCourtSessionReturn {
         respondToInterrupt(content);
         return true;
     }, [state.interruptState.isInterrupted, respondToInterrupt, addLog]);
+
+    const retry = useCallback(() => {
+        if (state.lastInterruptReq) {
+            dispatch({ type: 'RESTORE_INTERRUPT', payload: state.lastInterruptReq });
+            addLog('用户触发重试，已恢复上次中断请求');
+            addMessage('system', 'System', '⚠️ 系统提示：您已触发【重试】操作，正在恢复上一次的输入请求，请重新提交...', false);
+        } else {
+            addLog('没有可重试的操作');
+        }
+    }, [state.lastInterruptReq, dispatch, addLog, addMessage]);
 
     // --- 返回结构 ---
 
@@ -276,6 +300,7 @@ export function useCourtSession(): UseCourtSessionReturn {
         isTurnToSpeak: state.isTurnToSpeak,
         logs: state.logs,
         interruptState: state.interruptState,
+        lastInterruptReq: state.lastInterruptReq,
         progress: state.progress,
         focus: state.focus,
         evidenceList: state.evidenceList
@@ -287,6 +312,7 @@ export function useCourtSession(): UseCourtSessionReturn {
         clearSession,
         sendMessage,
         respondToInterrupt,
+        retry,
         addMessage,
         addLog
     }), [
@@ -295,6 +321,7 @@ export function useCourtSession(): UseCourtSessionReturn {
         clearSession,
         sendMessage,
         respondToInterrupt,
+        retry,
         addMessage,
         addLog
     ]);

@@ -39,11 +39,12 @@ const LeftSidebar: React.FC<LeftSidebarProps> = ({
     caseData,
     // 证据 (分组)
     evidenceData,
-    // 会话状态 (分组)
-    sessionInfo,
+    // 会话状态 (分组) - 暂未使用
+    sessionInfo: _sessionInfo,
     // 案件信息
     caseInfo
 }) => {
+    void _sessionInfo; // 标记为故意未使用
     // 为了方便，对分组后的 props 进行解构
     const { width, onStartResize } = layout;
     const { context: caseContext, onChange: onCaseContextChange } = caseData;
