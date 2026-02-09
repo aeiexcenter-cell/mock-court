@@ -8,6 +8,7 @@
 import { useCallback, useMemo } from 'react';
 import { useTrialState, NODE_TO_PHASE, inferUIRole, extractSpeakerName, nodeNameToActiveNode } from './useTrialState';
 import { useWebSocket } from './useWebSocket';
+import { activeCase } from '../data';
 import type {
     UIRole,
     SessionState,
@@ -247,16 +248,20 @@ export function useCourtSession(): UseCourtSessionReturn {
                 displayContent = input.messages || '已提交证据';
             }
 
+            // 获取当前案件配置的律师名称
+            const attorneyName = activeCase.meta.attorney_name || '辩护代理人';
+            const userDisplayName = `用户 (${attorneyName})`;
+
             // 将用户消息内容加入去重集合，防止后端返回时重复显示
             // 使用多种可能的 hash key 以确保覆盖后端可能使用的不同 name 格式
             const contentPrefix = displayContent.slice(0, 100);
-            processedContentSetRef.current.add(`用户 (辩护代理人)::${contentPrefix}`);
+            processedContentSetRef.current.add(`${userDisplayName}::${contentPrefix}`);
             processedContentSetRef.current.add(`::${contentPrefix}`); // 无 name 情况
             processedContentSetRef.current.add(`辩护代理人::${contentPrefix}`);
-            // 后端使用格式：辩护代理人{state.meta.attorney_name}，例如 "辩护代理人李某（北京典谟律师事务所）"
-            processedContentSetRef.current.add(`辩护代理人李某（北京典谟律师事务所）::${contentPrefix}`);
+            // 后端使用格式：辩护代理人{state.meta.attorney_name}
+            processedContentSetRef.current.add(`辩护代理人${attorneyName}::${contentPrefix}`);
 
-            addMessage('defense', '用户 (辩护代理人)', displayContent, true);
+            addMessage('defense', userDisplayName, displayContent, true);
             dispatch({ type: 'CLEAR_INTERRUPT' });
         } catch (e) {
             const error = e as Error;

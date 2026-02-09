@@ -81,7 +81,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, roleFilter }) => {
                             </div>
                             <div className={`text-sm leading-relaxed px-5 py-3.5 shadow-sm whitespace-pre-wrap ${bubbleClass}
                 prose prose-sm max-w-none
-                prose-headings:text-inherit prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-inherit`}
+                prose-headings:text-inherit prose-p:my-1 prose-ul:my-1 prose-li:my-0.5 prose-strong:text-inherit
+                prose-code:text-inherit prose-code:bg-current/10 prose-code:rounded prose-code:px-1 prose-code:before:content-none prose-code:after:content-none`}
                             >
                                 <ReactMarkdown rehypePlugins={[[rehypeSanitize, SANITIZE_CONFIG]]}>
                                     {msg.content}

@@ -161,11 +161,11 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                         variant="secondary"
                         onClick={onRetry}
                         disabled={!lastInterruptReq} // 只有在有上下文可重试时启用
-                        className={`w-full font-bold transition-all ${!lastInterruptReq ? 'opacity-50 cursor-not-allowed' : 'hover:bg-yellow-500/10 hover:text-yellow-600 border border-transparent hover:border-yellow-500/30'}`}
+                        className={`w-full font-bold transition-all ${!lastInterruptReq ? 'opacity-50 cursor-not-allowed' : 'hover:bg-tertiary/10 hover:text-tertiary border border-transparent hover:border-tertiary/30'}`}
                         size="md"
                     >
                         <div className="flex items-center gap-2">
-                            <RotateCcw size={16} className={lastInterruptReq ? "text-yellow-500" : ""} />
+                            <RotateCcw size={16} className={lastInterruptReq ? "text-tertiary" : ""} />
                             <span>重试上一步</span>
                         </div>
                     </Button>
@@ -222,7 +222,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
                                 <div className="w-12 shrink-0 flex justify-center z-10 relative">
                                     <div className={`relative h-12 w-12 flex items-center justify-center rounded-full transition-all duration-500
                                         ${isActive
-                                            ? 'bg-primary-container text-on-primary-container scale-110 shadow-[0_0_20px_rgba(109,94,15,0.35)]'
+                                            ? 'bg-primary-container text-on-primary-container scale-110 shadow-[0_0_20px_rgb(var(--md-sys-color-primary)/0.35)]'
                                             : isCompleted
                                                 ? 'bg-primary/20 text-primary border-2 border-primary/40'
                                                 : 'bg-surface-container-highest border-2 border-outline-variant/30 text-on-surface-variant'

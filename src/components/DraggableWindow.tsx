@@ -1,5 +1,8 @@
 import React from 'react';
 import { FileText } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import WindowFrame from './WindowFrame';
 import Button from './Button';
 import type { WindowState } from '../types';
@@ -55,7 +58,21 @@ const DraggableWindow: React.FC<DraggableWindowProps> = ({
                         </Button>
                     </div>
                 ) : (
-                    <p className="whitespace-pre-wrap leading-relaxed break-words text-on-surface">{win.content}</p>
+                    <div className="prose prose-sm max-w-none dark:prose-invert 
+                        prose-headings:text-on-surface prose-p:text-on-surface 
+                        prose-strong:text-on-surface prose-ul:text-on-surface 
+                        prose-li:text-on-surface prose-table:text-on-surface 
+                        prose-th:text-on-surface prose-td:text-on-surface 
+                        prose-blockquote:text-on-surface-variant prose-blockquote:border-l-primary/50
+                        prose-code:text-primary prose-code:bg-primary/10 prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-code:font-medium prose-code:before:content-none prose-code:after:content-none"
+                    >
+                        <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeRaw]}
+                        >
+                            {win.content}
+                        </ReactMarkdown>
+                    </div>
                 )}
             </div>
         </WindowFrame>
