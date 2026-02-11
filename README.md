@@ -1,16 +1,88 @@
-# React + Vite
+# Mock Court Frontend (AI 模拟法庭前端)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## React Compiler
+## 📖 项目简介 (Introduction)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+`mock-court` 是一个基于 **React** 和 **WebSocket** 的实时 AI 模拟法庭前端项目。
 
-## Expanding the ESLint configuration
+## ✨ 核心功能 (Features)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* **⚖️ 沉浸式庭审体验**：全流程模拟法庭审理，支持多角色（法官、原告、被告、书记员）的实时对话流展示。
+* **🔄 实时双向通信**：基于 WebSocket 的低延迟通信，支持 AI流式输出 (Streaming) 和状态实时同步。
+* **🎭 角色扮演系统**：用户可扮演辩护律师等角色，与 AI 法官和公诉人进行对抗或协作。
+* **📂 证据管理系统**：内置案卷库，支持查看文本/文件证据，并提供“单一/联合/放弃”三种举证模式。
+* **📝 交互式输入控制**：
+  * **智能锁定**：根据法庭纪律自动锁定/解锁输入框。
+  * **多态输入**：支持文本辩论、布尔表态（是/否）、证据提交等多种交互形式。
+  * **长文本模式**：提供沉浸式的大屏编辑窗口，用于撰写复杂的代理词。
+* **🛡️ 系统高可用**：内置消息去重、断线重连、心跳保活等机制，确保通信稳定。
+
+## 🛠️ 技术栈 (Tech Stack)
+
+* **核心框架**: [React 18](https://react.dev/)
+* **构建工具**: [Vite](https://vitejs.dev/)
+* **开发语言**: [TypeScript](https://www.typescriptlang.org/)
+* **样式方案**: [TailwindCSS](https://tailwindcss.com/) + CSS Variables (Design Tokens)
+* **状态管理**: React Hooks (`useReducer`, `useContext`)
+* **Markdown渲染**: `react-markdown` + `rehype-sanitize`
+* **图标库**: `lucide-react`
+
+## 🚀 快速开始 (Getting Started)
+
+### 环境要求
+
+* Node.js >= 18.0.0
+* npm 或 pnpm
+
+### 安装安装 (Installation)
+
+```bash
+# 进入项目目录
+cd mock-court
+
+# 安装依赖
+npm install
+```
+
+### 运行开发服务器 (Development)
+
+```bash
+npm run dev
+```
+
+启动后访问 `http://localhost:5173` (默认端口可能变化，请查看终端输出)。
+
+### 构建生产版本 (Build)
+
+```bash
+npm run build
+```
+
+## 📂 项目结构 (Project Structure)
+
+```text
+src/
+├── components/          # 通用 UI 组件 (Button, WindowFrame, Avatar...)
+├── features/            # 业务功能模块
+│   ├── ChatArea/        # 庭审主舞台 (消息流, 输入框)
+│   ├── LeftSidebar/     # 侧边栏 (案卷, 证据列表)
+│   └── RightSidebar/    # 辅助控制栏 (流程导航, 调试)
+├── hooks/               # 自定义 Hooks
+│   ├── useCourtSession.ts # [核心] 庭审会话 Facade
+│   ├── useTrialState.ts   # [核心] 状态管理 Store
+│   └── useWebSocket.ts    # [核心] 网络适配器
+├── types/               # TypeScript 类型定义
+└── utils/               # 工具函数
+```
+
+# 
+
+## 🤝 贡献 (Contributing)
+
+欢迎提交 Issue 或 Pull Request 来改进本项目。
+
+## 📄 许可证 (License)
+
+[MIT](LICENSE)
