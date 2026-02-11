@@ -102,16 +102,30 @@ export function useCourtSession(): UseCourtSessionReturn {
                 // 因为后端的 ChatPromptTemplate.to_messages() 会生成 HumanMessage，
                 // 但它们实际上是法庭公告（如 judge_open 的开庭声明）应该显示
 
-                // 使用 ref 进行去重，避免闭包问题
-                const contentHash = `${msg.name || ''}::${msg.content?.slice(0, 100) || ''}`;
-                if (processedContentSetRef.current.has(contentHash)) {
-                    console.log('[handleNodeExecuted] Skipping duplicate:', contentHash.slice(0, 50));
-                    return;
-                }
-                processedContentSetRef.current.add(contentHash);
-
                 const role = inferUIRole(msg.name);
                 const name = msg.name || extractSpeakerName(msg.content, msg.name);
+
+                // 关键修正：仅对用户（辩护方）消息进行去重
+                // 因为用户消息会在前端进行乐观更新（respondToInterrupt），后端随后会发回确认消息，需要避免重复显示
+                // 对于 AI 角色（法官、公诉人），后端流式输出是唯一来源，不应被拦截（即使内容相似）
+                if (role === 'defense') {
+                    // 加入 message_count 或 loop 标识，防止循环节点产生的相似消息被误判为重复
+                    const uniqueKey = data.message_count ? `:${data.message_count}` : '';
+                    const contentHash = `${msg.name || ''}::${msg.content?.slice(0, 100) || ''}${uniqueKey}`;
+
+                    // 新增：构建不带 count 的基础 hash，用于匹配乐观更新的消息
+                    // 乐观更新的消息通常没有 message_count 后缀，或者是 undefined
+                    const baseContentHash = `${msg.name || ''}::${msg.content?.slice(0, 100) || ''}`;
+
+                    // 检查完整 hash 或 基础 hash 是否已存在
+                    if (processedContentSetRef.current.has(contentHash) || processedContentSetRef.current.has(baseContentHash)) {
+                        console.log('[handleNodeExecuted] Skipping duplicate user message:', contentHash.slice(0, 50));
+                        return;
+                    }
+                    processedContentSetRef.current.add(contentHash);
+                    processedContentSetRef.current.add(baseContentHash);
+                }
+
                 addMessage(role, name, msg.content, false, nodeName);
             });
 

@@ -64,7 +64,8 @@ const DraggableWindow: React.FC<DraggableWindowProps> = ({
                         prose-li:text-on-surface prose-table:text-on-surface 
                         prose-th:text-on-surface prose-td:text-on-surface 
                         prose-blockquote:text-on-surface-variant prose-blockquote:border-l-primary/50
-                        prose-code:text-primary prose-code:bg-primary/10 prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-code:font-medium prose-code:before:content-none prose-code:after:content-none"
+                        prose-code:text-inherit prose-code:bg-transparent prose-code:p-0 prose-code:font-sans prose-code:font-normal prose-code:text-[1em] prose-code:before:content-none prose-code:after:content-none
+                        prose-pre:bg-transparent prose-pre:text-inherit prose-pre:p-0 prose-pre:m-0 prose-pre:font-sans prose-pre:text-[1em] prose-pre:shadow-none prose-pre:border-none"
                     >
                         <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
